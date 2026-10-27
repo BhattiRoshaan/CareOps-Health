@@ -316,6 +316,14 @@ Ticket has been assigned to **Sarah Jenkins, CRCR**. A healthcare operations rep
                   </div>
                 )}
 
+                {isUser && (
+                  <div className="flex items-center justify-end gap-2 text-[10px] font-medium text-slate-400 mb-1">
+                    <span>You</span>
+                    <span>•</span>
+                    <span>{msg.timestamp}</span>
+                  </div>
+                )}
+
                 {/* Emergency Notice Highlight */}
                 {msg.isEmergencyAlert && (
                   <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 flex items-start gap-2.5 text-xs font-semibold shadow-xs">
@@ -331,7 +339,7 @@ Ticket has been assigned to **Sarah Jenkins, CRCR**. A healthcare operations rep
 
                 {/* Main Message Bubble */}
                 <div
-                  className={`p-4 rounded-2xl text-xs leading-relaxed inline-block ${
+                  className={`p-4 rounded-2xl text-xs leading-relaxed inline-block shadow-2xs ${
                     isUser
                       ? 'bg-slate-900 text-white rounded-tr-none'
                       : msg.isEmergencyAlert
@@ -339,7 +347,13 @@ Ticket has been assigned to **Sarah Jenkins, CRCR**. A healthcare operations rep
                       : 'bg-slate-100 border border-slate-200 text-slate-900 rounded-tl-none'
                   }`}
                 >
-                  <div className="prose prose-xs max-w-none space-y-2 whitespace-pre-line text-slate-900">
+                  <div
+                    className={`prose prose-xs max-w-none space-y-2 whitespace-pre-line ${
+                      isUser
+                        ? 'text-white prose-invert [&_*]:text-white'
+                        : 'text-slate-900'
+                    }`}
+                  >
                     {msg.text}
                   </div>
                 </div>
