@@ -1,0 +1,162 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile with role-based access attributes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["patient", "provider", "billing", "claims", "admin", "ops_manager"] },
+        "patientId": { "type": "string" },
+        "providerId": { "type": "string" },
+        "department": { "type": "string" },
+        "title": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "role"]
+    },
+    "Patient": {
+      "title": "Patient Record",
+      "description": "Clinical demographic and insurance information of a patient",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "dob": { "type": "string" },
+        "gender": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "insuranceName": { "type": "string" },
+        "memberId": { "type": "string" },
+        "assignedProviderName": { "type": "string" },
+        "outstandingBalance": { "type": "number" }
+      },
+      "required": ["id", "name", "insuranceName"]
+    },
+    "Appointment": {
+      "title": "Clinical Appointment",
+      "description": "Scheduled medical encounter between patient and provider",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "providerId": { "type": "string" },
+        "providerName": { "type": "string" },
+        "department": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "type": { "type": "string" },
+        "status": { "type": "string" },
+        "reasonForVisit": { "type": "string" }
+      },
+      "required": ["id", "patientId", "providerId", "date", "time", "status"]
+    },
+    "Claim": {
+      "title": "Medical Claim & Prior Auth",
+      "description": "Healthcare insurance reimbursement claim and denial appeal record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "providerName": { "type": "string" },
+        "serviceDate": { "type": "string" },
+        "payerName": { "type": "string" },
+        "serviceDescription": { "type": "string" },
+        "submittedAmount": { "type": "number" },
+        "paidAmount": { "type": "number" },
+        "patientResponsibility": { "type": "number" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "patientId", "payerName", "status", "submittedAmount"]
+    },
+    "Invoice": {
+      "title": "Billing Invoice",
+      "description": "Patient and insurance financial obligation and payment status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "serviceDate": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "totalAmount": { "type": "number" },
+        "insurancePaid": { "type": "number" },
+        "patientDue": { "type": "number" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "patientId", "totalAmount", "patientDue", "status"]
+    },
+    "SupportTicket": {
+      "title": "Staff Escalation Ticket",
+      "description": "Operational ticket requiring human intervention or clinical triage",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "subject": { "type": "string" },
+        "department": { "type": "string" },
+        "patientId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "status": { "type": "string" },
+        "priority": { "type": "string" },
+        "description": { "type": "string" },
+        "assignedTo": { "type": "string" }
+      },
+      "required": ["id", "subject", "status", "priority"]
+    },
+    "AuditLog": {
+      "title": "HIPAA Compliance Audit Log",
+      "description": "Tamper-evident record of user and AI operations accessing clinical data",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userRole": { "type": "string" },
+        "action": { "type": "string" },
+        "resourceType": { "type": "string" },
+        "resourceId": { "type": "string" },
+        "result": { "type": "string" },
+        "ipAddress": { "type": "string" },
+        "phiAccessed": { "type": "boolean" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "timestamp", "userId", "action", "resourceType", "result"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Authenticated user accounts and operational profiles"
+    },
+    "/patients/{patientId}": {
+      "schema": "Patient",
+      "description": "Patient records and active health context"
+    },
+    "/appointments/{appointmentId}": {
+      "schema": "Appointment",
+      "description": "Scheduled appointments and care encounters"
+    },
+    "/claims/{claimId}": {
+      "schema": "Claim",
+      "description": "Prior auth and claim denial records"
+    },
+    "/invoices/{invoiceId}": {
+      "schema": "Invoice",
+      "description": "Patient financial invoices and ledger"
+    },
+    "/supportTickets/{ticketId}": {
+      "schema": "SupportTicket",
+      "description": "Staff triage and escalation tickets"
+    },
+    "/auditLogs/{auditId}": {
+      "schema": "AuditLog",
+      "description": "Immutable audit entries for HIPAA compliance"
+    }
+  }
+}

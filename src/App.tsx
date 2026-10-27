@@ -1,0 +1,245 @@
+import React, { useState } from 'react';
+import { AppProvider, useApp } from './context/AppContext';
+import { Header } from './components/common/Header';
+import { Sidebar } from './components/common/Sidebar';
+import { ToastContainer } from './components/common/ToastContainer';
+import { ClinicalSafetyBanner } from './components/safety/ClinicalSafetyBanner';
+import { RoleSwitcherModal } from './components/auth/RoleSwitcherModal';
+import { AuthPage } from './components/auth/AuthPage';
+import { AuthModal } from './components/auth/AuthModal';
+import { AccountSettingsView } from './components/settings/AccountSettingsView';
+import { AccountSettingsModal } from './components/settings/AccountSettingsModal';
+import { PatientQuickView } from './components/patients/PatientQuickView';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+
+import {
+  LayoutDashboard,
+  MessageSquare,
+  Mic,
+  FileCheck2,
+  Menu
+} from 'lucide-react';
+
+import { DashboardView } from './components/dashboard/DashboardView';
+import { AIChatView } from './components/chat/AIChatView';
+import { VoiceAIView } from './components/voice/VoiceAIView';
+import { ClaimsView } from './components/claims/ClaimsView';
+import { AppointmentsView } from './components/appointments/AppointmentsView';
+import { BillingView } from './components/billing/BillingView';
+import { PatientsView } from './components/patients/PatientsView';
+import { DocumentsView } from './components/documents/DocumentsView';
+import { InsuranceView } from './components/insurance/InsuranceView';
+import { ProvidersView } from './components/providers/ProvidersView';
+import { EscalationsView } from './components/escalations/EscalationsView';
+import { KnowledgeBaseView } from './components/knowledge/KnowledgeBaseView';
+import { AIAgentsView } from './components/agents/AIAgentsView';
+import { AnalyticsView } from './components/analytics/AnalyticsView';
+import { AuditLogsView } from './components/audit/AuditLogsView';
+import { SettingsView } from './components/settings/SettingsView';
+
+const MainContent: React.FC = () => {
+  const {
+    isAuthenticated,
+    isAuthModalOpen,
+    setIsAuthModalOpen,
+    authInitialTab,
+    isAccountSettingsModalOpen,
+    setIsAccountSettingsModalOpen,
+    isPatientQuickViewOpen,
+    closePatientQuickView,
+    quickViewPatient,
+    activePage,
+    setActivePage,
+    claims
+  } = useApp();
+
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  const deniedClaimsCount = claims.filter(c => c.status === 'Denied').length;
+
+  // If user is not authenticated, render the dedicated Authentication Landing View
+  if (!isAuthenticated) {
+    return (
+      <div className="flex h-screen w-screen overflow-hidden bg-[#f8fafb] font-sans text-slate-800 antialiased selection:bg-teal-700/20 selection:text-teal-900">
+        <AuthPage />
+        <ToastContainer />
+      </div>
+    );
+  }
+
+  const renderActiveView = () => {
+    switch (activePage) {
+      case 'dashboard':
+        return <DashboardView />;
+      case 'chat':
+        return <AIChatView />;
+      case 'voice':
+        return <VoiceAIView />;
+      case 'claims':
+        return <ClaimsView />;
+      case 'appointments':
+        return <AppointmentsView />;
+      case 'billing':
+        return <BillingView />;
+      case 'patients':
+        return <PatientsView />;
+      case 'documents':
+        return <DocumentsView />;
+      case 'insurance':
+        return <InsuranceView />;
+      case 'providers':
+        return <ProvidersView />;
+      case 'escalations':
+        return <EscalationsView />;
+      case 'knowledge':
+        return <KnowledgeBaseView />;
+      case 'agents':
+        return <AIAgentsView />;
+      case 'analytics':
+        return <AnalyticsView />;
+      case 'audit':
+        return <AuditLogsView />;
+      case 'account-settings':
+        return <AccountSettingsView />;
+      case 'settings':
+        return <SettingsView />;
+      default:
+        return <DashboardView />;
+    }
+  };
+
+  return (
+    <div className="flex h-screen w-screen overflow-hidden bg-[#f8fafb] font-sans text-slate-800 antialiased selection:bg-teal-700/20 selection:text-teal-900">
+      {/* Desktop Static Sidebar */}
+      <Sidebar isMobile={false} onOpenRoleModal={() => setIsRoleModalOpen(true)} />
+
+      {/* Mobile Slide-Out Drawer */}
+      <Sidebar
+        isMobile={true}
+        isOpen={isMobileNavOpen}
+        onClose={() => setIsMobileNavOpen(false)}
+        onOpenRoleModal={() => {
+          setIsMobileNavOpen(false);
+          setIsRoleModalOpen(true);
+        }}
+      />
+
+      {/* Main Content Area */}
+      <div className="flex flex-col flex-1 h-full min-w-0 overflow-hidden relative">
+        {/* Header */}
+        <Header onOpenMobileNav={() => setIsMobileNavOpen(true)} />
+
+        {/* Clinical Emergency Guardrail Banner */}
+        <ClinicalSafetyBanner />
+
+        {/* Scrollable View Container */}
+        <main className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-7 pb-24 lg:pb-8">
+          <div className="max-w-7xl mx-auto space-y-6">
+            <ErrorBoundary onReset={() => setActivePage('dashboard')}>
+              {renderActiveView()}
+            </ErrorBoundary>
+          </div>
+        </main>
+
+        {/* Mobile Bottom Navigation Bar (Ultra-responsive multi-device friendly) */}
+        <nav
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200 px-2 py-1.5 flex items-center justify-around shadow-lg"
+          aria-label="Mobile Navigation"
+        >
+          <button
+            onClick={() => setActivePage('dashboard')}
+            className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer ${
+              activePage === 'dashboard'
+                ? 'text-teal-700 font-bold scale-105'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <LayoutDashboard className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5">Overview</span>
+          </button>
+
+          <button
+            onClick={() => setActivePage('chat')}
+            className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer ${
+              activePage === 'chat'
+                ? 'text-teal-700 font-bold scale-105'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <MessageSquare className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5">AI Chat</span>
+          </button>
+
+          <button
+            onClick={() => setActivePage('voice')}
+            className={`flex flex-col items-center justify-center -mt-4 p-2.5 rounded-full bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/30 transition-transform active:scale-95 cursor-pointer ${
+              activePage === 'voice' ? 'ring-2 ring-teal-400 ring-offset-2' : ''
+            }`}
+          >
+            <Mic className="w-5 h-5 animate-pulse" />
+            <span className="sr-only">Voice AI</span>
+          </button>
+
+          <button
+            onClick={() => setActivePage('claims')}
+            className={`flex flex-col items-center justify-center p-1.5 rounded-xl relative transition-all cursor-pointer ${
+              activePage === 'claims'
+                ? 'text-teal-700 font-bold scale-105'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <FileCheck2 className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5">Claims</span>
+            {deniedClaimsCount > 0 && (
+              <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-rose-500" />
+            )}
+          </button>
+
+          <button
+            onClick={() => setIsMobileNavOpen(true)}
+            className="flex flex-col items-center justify-center p-1.5 rounded-xl text-slate-500 hover:text-slate-900 transition-all cursor-pointer"
+          >
+            <Menu className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5">Menu</span>
+          </button>
+        </nav>
+      </div>
+
+      {/* Role Switching RBAC Modal */}
+      <RoleSwitcherModal isOpen={isRoleModalOpen} onClose={() => setIsRoleModalOpen(false)} />
+
+      {/* Account Settings Modal */}
+      <AccountSettingsModal
+        isOpen={isAccountSettingsModalOpen}
+        onClose={() => setIsAccountSettingsModalOpen(false)}
+      />
+
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialTab={authInitialTab}
+      />
+
+      {/* Patient Quick View Drawer / Modal */}
+      <PatientQuickView
+        isOpen={isPatientQuickViewOpen}
+        onClose={closePatientQuickView}
+        patient={quickViewPatient}
+      />
+
+      {/* Global Notifications Toast Stack */}
+      <ToastContainer />
+    </div>
+  );
+};
+
+export default function App() {
+  return (
+    <AppProvider>
+      <MainContent />
+    </AppProvider>
+  );
+}
+

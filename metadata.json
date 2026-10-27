@@ -1,0 +1,10 @@
+{
+  "name": "CareOps AI",
+  "description": "One AI for Every Healthcare Operation — Intelligent enterprise healthcare operations, multi-agent chat, voice assistant, claims denial analysis, billing, and document intelligence.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

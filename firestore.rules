@@ -1,0 +1,120 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all access unless explicitly allowed below
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'bhattiroshaan248@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Connection validation ping document
+    match /test/{testId} {
+      allow read, write: if true;
+    }
+
+    // Admin records
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if incoming().id is string &&
+        incoming().name is string && incoming().name.size() <= 200 &&
+        incoming().email is string && incoming().email.size() <= 200;
+      allow update: if incoming().id == existing().id;
+      allow delete: if isAdmin();
+    }
+
+    // Patients Collection
+    match /patients/{patientId} {
+      allow read: if true;
+      allow create: if incoming().id is string &&
+        incoming().name is string && incoming().name.size() <= 200;
+      allow update: if incoming().id == existing().id;
+      allow delete: if isAdmin();
+    }
+
+    // Appointments Collection
+    match /appointments/{appointmentId} {
+      allow read: if true;
+      allow create: if incoming().patientId is string &&
+        incoming().providerId is string &&
+        incoming().date is string;
+      allow update: if incoming().patientId == existing().patientId;
+      allow delete: if true;
+    }
+
+    // Claims Collection
+    match /claims/{claimId} {
+      allow read: if true;
+      allow create: if incoming().patientId is string &&
+        incoming().payerName is string;
+      allow update: if incoming().patientId == existing().patientId;
+      allow delete: if isAdmin();
+    }
+
+    // Invoices Collection
+    match /invoices/{invoiceId} {
+      allow read: if true;
+      allow create: if incoming().patientId is string &&
+        incoming().totalAmount is number;
+      allow update: if incoming().patientId == existing().patientId;
+      allow delete: if isAdmin();
+    }
+
+    // Support & Escalation Tickets Collection
+    match /supportTickets/{ticketId} {
+      allow read: if true;
+      allow create: if incoming().subject is string && incoming().subject.size() <= 300;
+      allow update: if true;
+      allow delete: if isAdmin();
+    }
+
+    // Clinical Documents Collection
+    match /documents/{documentId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isAdmin();
+    }
+
+    // Audit Logs Collection (Append-only for HIPAA compliance)
+    match /auditLogs/{auditId} {
+      allow read: if true;
+      allow create: if incoming().action is string &&
+        incoming().timestamp is string;
+      allow update: if false; // Immutable audit log
+      allow delete: if false; // Immutable audit log
+    }
+  }
+}
