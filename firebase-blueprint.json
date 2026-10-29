@@ -91,6 +91,23 @@
       },
       "required": ["id", "patientId", "totalAmount", "patientDue", "status"]
     },
+    "Payment": {
+      "title": "Payment Transaction Record",
+      "description": "Authentic settlement transaction record for patient invoice obligation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "invoiceId": { "type": "string" },
+        "patientId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "transactionDate": { "type": "string" },
+        "status": { "type": "string" },
+        "referenceNumber": { "type": "string" }
+      },
+      "required": ["id", "invoiceId", "patientId", "amount", "status"]
+    },
     "SupportTicket": {
       "title": "Staff Escalation Ticket",
       "description": "Operational ticket requiring human intervention or clinical triage",
@@ -149,6 +166,10 @@
     "/invoices/{invoiceId}": {
       "schema": "Invoice",
       "description": "Patient financial invoices and ledger"
+    },
+    "/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Financial ledger transactions and settlement records"
     },
     "/supportTickets/{ticketId}": {
       "schema": "SupportTicket",

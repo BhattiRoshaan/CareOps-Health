@@ -36,6 +36,8 @@ import { AIAgentsView } from './components/agents/AIAgentsView';
 import { AnalyticsView } from './components/analytics/AnalyticsView';
 import { AuditLogsView } from './components/audit/AuditLogsView';
 import { SettingsView } from './components/settings/SettingsView';
+import { WorkQueuesView } from './components/queues/WorkQueuesView';
+import { AccessibilityModal } from './components/common/AccessibilityModal';
 
 const MainContent: React.FC = () => {
   const {
@@ -50,7 +52,9 @@ const MainContent: React.FC = () => {
     quickViewPatient,
     activePage,
     setActivePage,
-    claims
+    claims,
+    isAccessibilityModalOpen,
+    setIsAccessibilityModalOpen
   } = useApp();
 
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
@@ -72,6 +76,8 @@ const MainContent: React.FC = () => {
     switch (activePage) {
       case 'dashboard':
         return <DashboardView />;
+      case 'queues':
+        return <WorkQueuesView />;
       case 'chat':
         return <AIChatView />;
       case 'voice':
@@ -111,6 +117,14 @@ const MainContent: React.FC = () => {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#f8fafb] font-sans text-slate-800 antialiased selection:bg-teal-700/20 selection:text-teal-900">
+      {/* Skip to Main Content Link for Keyboard and Screen Reader Accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-teal-700 focus:text-white focus:font-semibold focus:rounded-lg focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2"
+      >
+        Skip to main content
+      </a>
+
       {/* Desktop Static Sidebar */}
       <Sidebar isMobile={false} onOpenRoleModal={() => setIsRoleModalOpen(true)} />
 
@@ -134,7 +148,13 @@ const MainContent: React.FC = () => {
         <ClinicalSafetyBanner />
 
         {/* Scrollable View Container */}
-        <main className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-7 pb-24 lg:pb-8">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          role="main"
+          aria-label="Main Application Content"
+          className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-7 pb-24 lg:pb-8 outline-none"
+        >
           <div className="max-w-7xl mx-auto space-y-6">
             <ErrorBoundary onReset={() => setActivePage('dashboard')}>
               {renderActiveView()}
@@ -144,36 +164,42 @@ const MainContent: React.FC = () => {
 
         {/* Mobile Bottom Navigation Bar (Ultra-responsive multi-device friendly) */}
         <nav
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200 px-2 py-1.5 flex items-center justify-around shadow-lg"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200 px-3 py-2 flex items-center justify-around shadow-lg"
           aria-label="Mobile Navigation"
         >
           <button
             onClick={() => setActivePage('dashboard')}
-            className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer ${
+            aria-label="Overview Dashboard"
+            className={`min-h-[44px] min-w-[44px] flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer ${
               activePage === 'dashboard'
                 ? 'text-teal-700 font-bold scale-105'
-                : 'text-slate-500 hover:text-slate-900'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <LayoutDashboard className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Overview</span>
+            <span className="text-xs mt-0.5">Overview</span>
           </button>
 
           <button
-            onClick={() => setActivePage('chat')}
-            className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer ${
-              activePage === 'chat'
+            onClick={() => setActivePage('queues')}
+            aria-label="Work Queues"
+            className={`min-h-[44px] min-w-[44px] flex flex-col items-center justify-center p-1.5 rounded-xl relative transition-all cursor-pointer ${
+              activePage === 'queues'
                 ? 'text-teal-700 font-bold scale-105'
-                : 'text-slate-500 hover:text-slate-900'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <MessageSquare className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">AI Chat</span>
+            <FileCheck2 className="w-5 h-5" />
+            <span className="text-xs mt-0.5">Queues</span>
+            {deniedClaimsCount > 0 && (
+              <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-rose-500" />
+            )}
           </button>
 
           <button
             onClick={() => setActivePage('voice')}
-            className={`flex flex-col items-center justify-center -mt-4 p-2.5 rounded-full bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/30 transition-transform active:scale-95 cursor-pointer ${
+            aria-label="Voice AI Emergency & Clinical Line"
+            className={`flex flex-col items-center justify-center -mt-4 p-3 rounded-full bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/30 transition-transform active:scale-95 cursor-pointer ${
               activePage === 'voice' ? 'ring-2 ring-teal-400 ring-offset-2' : ''
             }`}
           >
@@ -182,26 +208,25 @@ const MainContent: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActivePage('claims')}
-            className={`flex flex-col items-center justify-center p-1.5 rounded-xl relative transition-all cursor-pointer ${
-              activePage === 'claims'
+            onClick={() => setActivePage('chat')}
+            aria-label="AI EHR Assistant Chat"
+            className={`min-h-[44px] min-w-[44px] flex flex-col items-center justify-center p-1.5 rounded-xl transition-all cursor-pointer ${
+              activePage === 'chat'
                 ? 'text-teal-700 font-bold scale-105'
-                : 'text-slate-500 hover:text-slate-900'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <FileCheck2 className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Claims</span>
-            {deniedClaimsCount > 0 && (
-              <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-rose-500" />
-            )}
+            <MessageSquare className="w-5 h-5" />
+            <span className="text-xs mt-0.5">AI Chat</span>
           </button>
 
           <button
             onClick={() => setIsMobileNavOpen(true)}
-            className="flex flex-col items-center justify-center p-1.5 rounded-xl text-slate-500 hover:text-slate-900 transition-all cursor-pointer"
+            aria-label="Open Full Navigation Menu"
+            className="min-h-[44px] min-w-[44px] flex flex-col items-center justify-center p-1.5 rounded-xl text-slate-600 hover:text-slate-900 transition-all cursor-pointer"
           >
             <Menu className="w-5 h-5" />
-            <span className="text-[10px] mt-0.5">Menu</span>
+            <span className="text-xs mt-0.5">Menu</span>
           </button>
         </nav>
       </div>
@@ -227,6 +252,12 @@ const MainContent: React.FC = () => {
         isOpen={isPatientQuickViewOpen}
         onClose={closePatientQuickView}
         patient={quickViewPatient}
+      />
+
+      {/* Accessibility & Visual Comfort Modal */}
+      <AccessibilityModal
+        isOpen={isAccessibilityModalOpen}
+        onClose={() => setIsAccessibilityModalOpen(false)}
       />
 
       {/* Global Notifications Toast Stack */}

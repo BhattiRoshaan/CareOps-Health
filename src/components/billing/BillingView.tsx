@@ -12,8 +12,11 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  X
+  X,
+  Download
 } from 'lucide-react';
+import { PaymentModal } from './PaymentModal';
+import { exportInvoicesToCSV } from '../../utils/exportUtils';
 
 export const BillingView: React.FC = () => {
   const { invoices, payments, payInvoice, setupPaymentPlan, activePatient, openPatientQuickView, addToast } = useApp();
@@ -22,7 +25,6 @@ export const BillingView: React.FC = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showPayModal, setShowPayModal] = useState(false);
   const [showPlanModal, setShowPlanModal] = useState(false);
-  const [payAmount, setPayAmount] = useState<number>(0);
   const [planMonths, setPlanMonths] = useState<number>(4);
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,7 +45,6 @@ export const BillingView: React.FC = () => {
 
   const handleOpenPay = (inv: Invoice) => {
     setSelectedInvoice(inv);
-    setPayAmount(inv.balanceDue);
     setShowPayModal(true);
   };
 
@@ -51,16 +52,6 @@ export const BillingView: React.FC = () => {
     setSelectedInvoice(inv);
     setPlanMonths(4);
     setShowPlanModal(true);
-  };
-
-  const handleProcessPayment = async () => {
-    if (!selectedInvoice) return;
-    setIsProcessing(true);
-    const success = await payInvoice(selectedInvoice.id, payAmount, 'Visa ending in 4082');
-    setIsProcessing(false);
-    if (success) {
-      setShowPayModal(false);
-    }
   };
 
   const handleProcessPlan = async () => {
@@ -87,6 +78,16 @@ export const BillingView: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => exportInvoicesToCSV(filteredInvoices)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium cursor-pointer transition-colors shadow-xs"
+            title="Download CSV export of statement ledger"
+            aria-label="Export Statements to CSV"
+          >
+            <Download className="w-3.5 h-3.5 text-slate-500" />
+            <span>Export CSV</span>
+          </button>
+
           <div className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs">
             <span className="text-slate-500 mr-1.5">{activePatient.name} Balance:</span>
             <span className="font-semibold text-slate-900">${activePatient.outstandingBalance.toFixed(2)}</span>
@@ -278,66 +279,15 @@ export const BillingView: React.FC = () => {
         )}
       </div>
 
-      {/* Pay Modal */}
-      {showPayModal && selectedInvoice && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-          <div className="w-full max-w-md bg-white rounded-xl shadow-xl border border-slate-200 p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-base font-semibold text-slate-900">
-                  Process Patient Payment
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Invoice #{selectedInvoice.id} · {selectedInvoice.patientName}
-                </p>
-              </div>
-              <button onClick={() => setShowPayModal(false)} className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs flex justify-between items-center">
-              <div>
-                <span className="text-slate-500">Remaining Balance:</span>
-                <div className="text-base font-semibold text-slate-900">${selectedInvoice.balanceDue.toFixed(2)}</div>
-              </div>
-              <div className="text-right">
-                <span className="text-slate-500">Payment Method:</span>
-                <div className="text-slate-700 font-medium">Visa ···· 4082</div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
-                Payment Amount ($):
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={payAmount}
-                onChange={(e) => setPayAmount(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-teal-700"
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
-              <button
-                onClick={() => setShowPayModal(false)}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleProcessPayment}
-                disabled={isProcessing}
-                className="px-4 py-1.5 rounded-lg bg-teal-800 hover:bg-teal-900 text-white font-medium text-xs transition-colors cursor-pointer"
-              >
-                {isProcessing ? 'Processing...' : `Confirm $${payAmount.toFixed(2)}`}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Authentic Payment Modal (Multi-Method: Card, HSA/FSA, ACH; Receipt Download & Firestore Sync) */}
+      <PaymentModal
+        isOpen={showPayModal}
+        onClose={() => setShowPayModal(false)}
+        invoice={selectedInvoice}
+        onPaymentSuccess={() => {
+          setShowPayModal(false);
+        }}
+      />
 
       {/* Payment Plan Modal */}
       {showPlanModal && selectedInvoice && (

@@ -20,7 +20,8 @@ import {
   Settings,
   User,
   LogOut,
-  Settings2
+  Settings2,
+  Layers
 } from 'lucide-react';
 
 interface NavItem {
@@ -52,7 +53,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, isOpen = fal
     appointments,
     supportTickets,
     invoices,
-    documents
+    documents,
+    roleFocus,
+    setRoleFocus
   } = useApp();
 
   const deniedClaimsCount = claims.filter(c => c.status === 'Denied').length;
@@ -62,6 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, isOpen = fal
 
   const coreNavItems: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'queues', label: 'Work Queues', icon: Layers, badge: deniedClaimsCount + unpaidInvoicesCount, badgeVariant: 'warning' },
     { id: 'chat', label: 'AI Assistant', icon: MessageSquare },
     { id: 'voice', label: 'Voice AI Studio', icon: Mic }
   ];
@@ -99,17 +103,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, isOpen = fal
     }
   };
 
+  const roleFocusPages: Record<UserRole, PageId[]> = {
+    patient: ['dashboard', 'appointments', 'billing', 'documents', 'chat', 'voice', 'account-settings'],
+    provider: ['dashboard', 'patients', 'appointments', 'providers', 'documents', 'chat', 'voice', 'account-settings'],
+    billing: ['dashboard', 'queues', 'billing', 'claims', 'insurance', 'chat', 'analytics', 'account-settings'],
+    claims: ['dashboard', 'queues', 'claims', 'insurance', 'documents', 'escalations', 'chat', 'account-settings'],
+    ops_manager: ['dashboard', 'queues', 'escalations', 'knowledge', 'agents', 'analytics', 'audit', 'chat', 'account-settings'],
+    admin: [
+      'dashboard', 'queues', 'chat', 'voice', 'patients', 'appointments', 'providers',
+      'insurance', 'claims', 'billing', 'documents', 'escalations', 'knowledge',
+      'agents', 'analytics', 'audit', 'account-settings', 'settings'
+    ]
+  };
+
   const renderNavGroup = (title: string, items: NavItem[]) => {
     const visibleItems = items.filter(item => {
-      if (!item.allowedRoles) return true;
-      return item.allowedRoles.includes(currentUser.role);
+      if (item.allowedRoles && !item.allowedRoles.includes(currentUser.role)) {
+        return false;
+      }
+      if (roleFocus === 'myRole' && currentUser.role !== 'admin') {
+        const allowed = roleFocusPages[currentUser.role] || [];
+        return allowed.includes(item.id);
+      }
+      return true;
     });
 
     if (visibleItems.length === 0) return null;
 
     return (
-      <div className="mb-4">
-        <div className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+      <div className="mb-3.5">
+        <div className="px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
           {title}
         </div>
         <div className="space-y-0.5">
@@ -121,7 +144,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, isOpen = fal
               <button
                 key={item.id}
                 onClick={() => handleSelectPage(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                aria-current={isActive ? 'page' : undefined}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                   isActive
                     ? 'bg-teal-50 text-teal-900 font-semibold border-l-2 border-teal-700'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
@@ -138,7 +162,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, isOpen = fal
 
                 {item.badge !== undefined && (
                   <span
-                    className={`px-1.5 py-0.2 text-[10px] font-medium rounded shrink-0 ${
+                    className={`px-1.5 py-0.5 text-xs font-medium rounded shrink-0 ${
                       item.badgeVariant === 'danger'
                         ? 'bg-rose-50 text-rose-700'
                         : item.badgeVariant === 'warning'
@@ -158,7 +182,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, isOpen = fal
   };
 
   const content = (
-    <div className="flex flex-col h-full overflow-y-auto p-3 select-none">
+    <nav className="flex flex-col h-full overflow-y-auto p-3 select-none" aria-label="Sidebar Application Navigation">
+      {/* Role Focus Badge */}
+      {roleFocus === 'myRole' && currentUser.role !== 'admin' && (
+        <div className="mb-3 px-3 py-2 rounded-lg bg-teal-50/90 border border-teal-200/80 flex items-center justify-between text-xs text-teal-900">
+          <span className="font-semibold capitalize truncate">{currentUser.role.replace('_', ' ')} View</span>
+          <button
+            onClick={() => setRoleFocus('all')}
+            className="text-teal-700 hover:text-teal-900 font-medium underline shrink-0 cursor-pointer text-xs"
+            title="Switch to view all system modules"
+          >
+            Show All
+          </button>
+        </div>
+      )}
+
       {/* Navigation Groups */}
       <div className="flex-1 space-y-1">
         {renderNavGroup('Overview', coreNavItems)}
@@ -226,7 +264,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, isOpen = fal
           </button>
         </div>
       )}
-    </div>
+    </nav>
   );
 
   // If mobile mode, render slide-out drawer

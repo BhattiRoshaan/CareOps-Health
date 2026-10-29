@@ -16,7 +16,9 @@ import {
   Settings,
   LogOut,
   LogIn,
-  UserPlus
+  UserPlus,
+  Eye,
+  Filter
 } from 'lucide-react';
 import { UserRole } from '../../types';
 
@@ -41,7 +43,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileNav }) => {
     searchQuery,
     setSearchQuery,
     isFirestoreConnected,
-    firebaseUser
+    firebaseUser,
+    setIsAccessibilityModalOpen,
+    roleFocus,
+    setRoleFocus
   } = useApp();
 
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
@@ -242,6 +247,33 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileNav }) => {
             )}
           </div>
 
+          {/* Role Focus Filter Toggle for Business Users */}
+          <button
+            onClick={() => setRoleFocus(roleFocus === 'myRole' ? 'all' : 'myRole')}
+            className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+              roleFocus === 'myRole'
+                ? 'bg-teal-50 border-teal-200 text-teal-800'
+                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+            }`}
+            title={roleFocus === 'myRole' ? 'Filtering navigation to your active role. Click to view all modules.' : 'Viewing all system modules. Click to filter by active role.'}
+            aria-pressed={roleFocus === 'myRole'}
+            aria-label="Toggle role-focused navigation"
+          >
+            <Filter className="w-3.5 h-3.5 text-teal-700" />
+            <span>{roleFocus === 'myRole' ? 'Role Focus' : 'All Modules'}</span>
+          </button>
+
+          {/* Accessibility Preferences Modal Trigger */}
+          <button
+            onClick={() => setIsAccessibilityModalOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
+            title="Accessibility & Readability Settings (WCAG AAA, Font Scale, High Contrast)"
+            aria-label="Open accessibility preferences"
+          >
+            <Eye className="w-3.5 h-3.5 text-teal-700" />
+            <span className="hidden lg:inline">A11y</span>
+          </button>
+
           {/* Voice AI Action Link */}
           <button
             onClick={() => setActivePage('voice')}
@@ -251,6 +283,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileNav }) => {
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
             title="Launch Voice AI"
+            aria-label="Launch Voice AI"
           >
             <Mic className="w-3.5 h-3.5 text-teal-700" />
             <span className="hidden md:inline">Voice</span>

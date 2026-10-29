@@ -50,6 +50,7 @@ import {
   subscribeToAppointments,
   subscribeToClaims,
   subscribeToInvoices,
+  subscribeToPayments,
   subscribeToSupportTickets,
   subscribeToAuditLogs,
   createAppointmentInFirestore,
@@ -57,6 +58,8 @@ import {
   deleteAppointmentInFirestore,
   updateClaimInFirestore,
   updateInvoiceInFirestore,
+  createPaymentInFirestore,
+  updatePatientInFirestore,
   createSupportTicketInFirestore,
   appendAuditLogInFirestore,
   syncUserProfileToFirestore
@@ -155,6 +158,20 @@ interface AppContextType {
   setIsDarkMode: (val: boolean) => void;
   themeMode: 'light' | 'dark' | 'system';
   setThemeMode: (mode: 'light' | 'dark' | 'system') => void;
+
+  // Accessibility & WCAG Controls
+  textScale: 'normal' | 'large' | 'xlarge';
+  setTextScale: (scale: 'normal' | 'large' | 'xlarge') => void;
+  isHighContrast: boolean;
+  setIsHighContrast: (val: boolean) => void;
+  isReducedMotion: boolean;
+  setIsReducedMotion: (val: boolean) => void;
+  isAccessibilityModalOpen: boolean;
+  setIsAccessibilityModalOpen: (open: boolean) => void;
+
+  // Role Focus View
+  roleFocus: 'myRole' | 'all';
+  setRoleFocus: (mode: 'myRole' | 'all') => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -193,6 +210,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activePage, setActivePage] = useState<PageId>('dashboard');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
+  // Accessibility states
+  const [textScale, setTextScale] = useState<'normal' | 'large' | 'xlarge'>('normal');
+  const [isHighContrast, setIsHighContrast] = useState<boolean>(false);
+  const [isReducedMotion, setIsReducedMotion] = useState<boolean>(false);
+  const [isAccessibilityModalOpen, setIsAccessibilityModalOpen] = useState<boolean>(false);
+
+  // Business user role focus toggle
+  const [roleFocus, setRoleFocus] = useState<'myRole' | 'all'>('myRole');
+  
   // Healthcare Light Mode strictly enforced
   const [themeMode, setThemeModeState] = useState<'light' | 'dark' | 'system'>('light');
   const [isDarkMode] = useState<boolean>(false);
@@ -202,6 +228,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     document.documentElement.setAttribute('data-theme', 'light');
     localStorage.removeItem('careops_theme');
   }, []);
+
+  // HTML accessibility class synchronization
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove('text-scale-large', 'text-scale-xlarge');
+    if (textScale === 'large') root.classList.add('text-scale-large');
+    if (textScale === 'xlarge') root.classList.add('text-scale-xlarge');
+  }, [textScale]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isHighContrast) root.classList.add('high-contrast');
+    else root.classList.remove('high-contrast');
+  }, [isHighContrast]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isReducedMotion) root.classList.add('reduced-motion');
+    else root.classList.remove('reduced-motion');
+  }, [isReducedMotion]);
+
+  // Sync API auth headers whenever current user or role changes
+  useEffect(() => {
+    apiService.setAuth(currentUser.id, currentUser.role);
+  }, [currentUser]);
 
   const setThemeMode = (_mode: 'light' | 'dark' | 'system') => {
     setThemeModeState('light');
@@ -352,6 +403,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             }
           });
           unsubs.push(unsubPatients);
+
+          const unsubPayments = subscribeToPayments(remotePays => {
+            if (remotePays && remotePays.length > 0) {
+              setPayments(remotePays);
+            }
+          });
+          unsubs.push(unsubPayments);
         }
       } catch (err) {
         console.warn('Firestore initialization or listener setup notice:', err);
@@ -749,11 +807,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setInvoices(prev => prev.map(inv => inv.id === invoiceId ? res.invoice : inv));
         if (res.payment) {
           setPayments(prev => [res.payment, ...prev]);
+          createPaymentInFirestore(res.payment);
         }
+        const updatedBal = Math.max(0, activePatient.outstandingBalance - (amount || res.invoice.balanceDue));
         setPatients(prev => prev.map(p => p.id === activePatient.id ? {
           ...p,
-          outstandingBalance: Math.max(0, p.outstandingBalance - (amount || res.invoice.balanceDue))
+          outstandingBalance: updatedBal
         } : p));
+        updatePatientInFirestore(activePatient.id, { outstandingBalance: updatedBal });
 
         // Persist invoice payment status to Firestore
         updateInvoiceInFirestore(invoiceId, {
@@ -930,7 +991,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isDarkMode,
         setIsDarkMode,
         themeMode,
-        setThemeMode
+        setThemeMode,
+        textScale,
+        setTextScale,
+        isHighContrast,
+        setIsHighContrast,
+        isReducedMotion,
+        setIsReducedMotion,
+        isAccessibilityModalOpen,
+        setIsAccessibilityModalOpen,
+        roleFocus,
+        setRoleFocus
       }}
     >
       {children}

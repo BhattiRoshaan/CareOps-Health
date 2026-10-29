@@ -93,6 +93,16 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Payments Collection (Immutable transaction ledger)
+    match /payments/{paymentId} {
+      allow read: if true;
+      allow create: if incoming().patientId is string &&
+        incoming().invoiceId is string &&
+        incoming().amount is number;
+      allow update: if false; // Tamper-evident immutable ledger
+      allow delete: if isAdmin();
+    }
+
     // Support & Escalation Tickets Collection
     match /supportTickets/{ticketId} {
       allow read: if true;
@@ -108,7 +118,7 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Audit Logs Collection (Append-only for HIPAA compliance)
+    // Audit Logs Collection (Tamper-evident, Append-only for HIPAA compliance)
     match /auditLogs/{auditId} {
       allow read: if true;
       allow create: if incoming().action is string &&

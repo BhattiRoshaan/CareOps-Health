@@ -34,6 +34,7 @@ export interface UserProfile {
 
 export type PageId =
   | 'dashboard'
+  | 'queues'
   | 'chat'
   | 'voice'
   | 'patients'

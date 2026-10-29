@@ -22,6 +22,7 @@ import {
   Appointment,
   Claim,
   Invoice,
+  PaymentRecord,
   SupportTicket,
   AuditLog,
   UserProfile
@@ -32,6 +33,7 @@ import {
   mockAppointments,
   mockClaims,
   mockInvoices,
+  mockPayments,
   mockSupportTickets,
   mockAuditLogs
 } from '../data/mockData';
@@ -42,6 +44,7 @@ const PROVIDERS_COL = 'providers';
 const APPOINTMENTS_COL = 'appointments';
 const CLAIMS_COL = 'claims';
 const INVOICES_COL = 'invoices';
+const PAYMENTS_COL = 'payments';
 const TICKETS_COL = 'supportTickets';
 const AUDIT_COL = 'auditLogs';
 const USERS_COL = 'users';
@@ -83,6 +86,12 @@ export async function seedInitialDataIfEmpty(): Promise<boolean> {
     mockInvoices.forEach(inv => {
       const ref = doc(db, INVOICES_COL, inv.id);
       batch.set(ref, inv);
+    });
+
+    // Seed Payments
+    mockPayments.forEach(pay => {
+      const ref = doc(db, PAYMENTS_COL, pay.id);
+      batch.set(ref, pay);
     });
 
     // Seed Tickets
@@ -174,6 +183,23 @@ export function subscribeToInvoices(callback: (invoices: Invoice[]) => void): ()
   );
 }
 
+// Subscribe to Payments
+export function subscribeToPayments(callback: (payments: PaymentRecord[]) => void): () => void {
+  const colRef = collection(db, PAYMENTS_COL);
+  return onSnapshot(
+    colRef,
+    snapshot => {
+      if (!snapshot.empty) {
+        const data = snapshot.docs.map(d => ({ ...d.data(), id: d.id } as PaymentRecord));
+        callback(data);
+      }
+    },
+    error => {
+      handleFirestoreError(error, OperationType.GET, PAYMENTS_COL);
+    }
+  );
+}
+
 // Subscribe to Support Tickets
 export function subscribeToSupportTickets(callback: (tickets: SupportTicket[]) => void): () => void {
   const colRef = collection(db, TICKETS_COL);
@@ -255,6 +281,28 @@ export async function updateInvoiceInFirestore(id: string, updates: Partial<Invo
   const path = `${INVOICES_COL}/${id}`;
   try {
     await updateDoc(doc(db, INVOICES_COL, id), updates);
+    return true;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
+  }
+}
+
+// Payment Transaction Operations
+export async function createPaymentInFirestore(payment: PaymentRecord): Promise<boolean> {
+  const path = `${PAYMENTS_COL}/${payment.id}`;
+  try {
+    await setDoc(doc(db, PAYMENTS_COL, payment.id), payment);
+    return true;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.CREATE, path);
+  }
+}
+
+// Patient Record Operations
+export async function updatePatientInFirestore(id: string, updates: Partial<Patient>): Promise<boolean> {
+  const path = `${PATIENTS_COL}/${id}`;
+  try {
+    await updateDoc(doc(db, PATIENTS_COL, id), updates);
     return true;
   } catch (error) {
     handleFirestoreError(error, OperationType.UPDATE, path);

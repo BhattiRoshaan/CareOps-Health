@@ -12,8 +12,10 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Download
 } from 'lucide-react';
+import { exportClaimsToCSV } from '../../utils/exportUtils';
 
 export const ClaimsView: React.FC = () => {
   const { claims, submitAppeal, openPatientQuickView, addToast } = useApp();
@@ -113,16 +115,28 @@ CareOps Automated System`
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            const denied = claims.find(c => c.status === 'Denied');
-            if (denied) handleOpenAppealModal(denied);
-          }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-800 hover:bg-teal-900 text-white text-xs font-medium transition-colors cursor-pointer self-start sm:self-auto"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Appeal Next Denied Claim</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => exportClaimsToCSV(filteredClaims)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium transition-colors cursor-pointer shadow-xs"
+            title="Download CSV export of claims"
+            aria-label="Export Claims to CSV"
+          >
+            <Download className="w-3.5 h-3.5 text-slate-500" />
+            <span>Export CSV</span>
+          </button>
+
+          <button
+            onClick={() => {
+              const denied = claims.find(c => c.status === 'Denied');
+              if (denied) handleOpenAppealModal(denied);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-800 hover:bg-teal-900 text-white text-xs font-medium transition-colors cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Appeal Next Denied Claim</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter & Search Bar */}
