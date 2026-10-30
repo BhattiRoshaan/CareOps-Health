@@ -77,11 +77,11 @@ export const InsuranceView: React.FC = () => {
 
           <div className="flex items-center gap-4 text-xs">
             <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-              <div className="text-[10px] text-slate-400 font-bold uppercase">Member ID</div>
+              <div className="text-xs text-slate-400 font-bold uppercase">Member ID</div>
               <div className="font-mono font-bold">{policy.memberId}</div>
             </div>
             <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-              <div className="text-[10px] text-slate-400 font-bold uppercase">Group #</div>
+              <div className="text-xs text-slate-400 font-bold uppercase">Group #</div>
               <div className="font-mono font-bold">{policy.groupNumber}</div>
             </div>
           </div>
@@ -97,7 +97,7 @@ export const InsuranceView: React.FC = () => {
             <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
               <div className="bg-teal-500 h-2.5 rounded-full transition-all" style={{ width: `${deductiblePct}%` }}></div>
             </div>
-            <div className="flex justify-between text-[11px] text-slate-500">
+            <div className="flex justify-between text-xs text-slate-500">
               <span>{deductiblePct}% Met</span>
               <span>${policy.deductible.individualTotal - policy.deductible.individualMet} remaining</span>
             </div>
@@ -111,7 +111,7 @@ export const InsuranceView: React.FC = () => {
             <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
               <div className="bg-blue-500 h-2.5 rounded-full transition-all" style={{ width: `${oopPct}%` }}></div>
             </div>
-            <div className="flex justify-between text-[11px] text-slate-500">
+            <div className="flex justify-between text-xs text-slate-500">
               <span>{oopPct}% Met</span>
               <span>${policy.outOfPocketMax.individualTotal - policy.outOfPocketMax.individualMet} remaining to cap</span>
             </div>
@@ -125,27 +125,27 @@ export const InsuranceView: React.FC = () => {
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-center border border-slate-100 dark:border-slate-800">
-              <div className="text-[10px] font-bold text-slate-400 uppercase">Primary Care Visit</div>
+              <div className="text-xs font-bold text-slate-400 uppercase">Primary Care Visit</div>
               <div className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">${policy.copay.primaryCare}</div>
-              <div className="text-[10px] text-emerald-600 mt-0.5">Fixed Copay</div>
+              <div className="text-xs text-emerald-600 mt-0.5">Fixed Copay</div>
             </div>
 
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-center border border-slate-100 dark:border-slate-800">
-              <div className="text-[10px] font-bold text-slate-400 uppercase">Specialist Visit</div>
+              <div className="text-xs font-bold text-slate-400 uppercase">Specialist Visit</div>
               <div className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">${policy.copay.specialist}</div>
-              <div className="text-[10px] text-teal-600 mt-0.5">Cardiology/Derma</div>
+              <div className="text-xs text-teal-600 mt-0.5">Cardiology/Derma</div>
             </div>
 
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-center border border-slate-100 dark:border-slate-800">
-              <div className="text-[10px] font-bold text-slate-400 uppercase">Urgent Care</div>
+              <div className="text-xs font-bold text-slate-400 uppercase">Urgent Care</div>
               <div className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">${policy.copay.urgentCare}</div>
-              <div className="text-[10px] text-slate-500 mt-0.5">Walk-in Clinics</div>
+              <div className="text-xs text-slate-500 mt-0.5">Walk-in Clinics</div>
             </div>
 
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 text-center border border-slate-100 dark:border-slate-800">
-              <div className="text-[10px] font-bold text-slate-400 uppercase">Emergency Room</div>
+              <div className="text-xs font-bold text-slate-400 uppercase">Emergency Room</div>
               <div className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">${policy.copay.emergencyRoom}</div>
-              <div className="text-[10px] text-slate-500 mt-0.5">Waived if admitted</div>
+              <div className="text-xs text-slate-500 mt-0.5">Waived if admitted</div>
             </div>
           </div>
         </div>
@@ -156,7 +156,7 @@ export const InsuranceView: React.FC = () => {
             <AlertTriangle className="w-4 h-4 text-amber-600" />
             <span>Payer Prior Authorization Mandates under {policy.payerName}:</span>
           </div>
-          <ul className="list-disc list-inside text-[11px] text-amber-800 dark:text-amber-300 mt-1.5 space-y-1">
+          <ul className="list-disc list-inside text-xs text-amber-800 dark:text-amber-300 mt-1.5 space-y-1">
             <li>Advanced Diagnostic Imaging (Cardiac MRI CPT 75561, CT Angiography) requires 72-hour pre-service authorization.</li>
             <li>Outpatient Surgical Procedures require Gold-Carding or clinical chart note submission.</li>
             <li>Specialty Infusions & Biologics require step-therapy attestation.</li>

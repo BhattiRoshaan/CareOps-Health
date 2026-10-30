@@ -16,9 +16,15 @@ import {
 } from 'lucide-react';
 
 export const DocumentsView: React.FC = () => {
-  const { documents, uploadDocument, activePatient, addToast } = useApp();
+  const { documents, uploadDocument, activePatient, addToast, searchQuery } = useApp();
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchQuery || '');
+
+  React.useEffect(() => {
+    if (searchQuery !== undefined) {
+      setSearch(searchQuery);
+    }
+  }, [searchQuery]);
   const [selectedDoc, setSelectedDoc] = useState<DocumentItem | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [docTitle, setDocTitle] = useState('');
@@ -108,14 +114,14 @@ export const DocumentsView: React.FC = () => {
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="text-xs font-bold text-slate-900 dark:text-white">{doc.title}</h3>
-                        <span className="px-2 py-0.2 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        <span className="px-2 py-0.2 rounded text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                           {doc.documentType}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         Patient: <strong>{doc.patientName}</strong> • {doc.uploadedAt} • {doc.fileSize}
                       </div>
-                      <div className="text-[11px] text-teal-600 dark:text-teal-400 mt-1 font-semibold">
+                      <div className="text-xs text-teal-600 dark:text-teal-400 mt-1 font-semibold">
                         {doc.extractedFields.length} Structured Fields Parsed
                       </div>
                     </div>
@@ -166,7 +172,7 @@ export const DocumentsView: React.FC = () => {
                         : 'bg-slate-50 dark:bg-slate-800/60 border-slate-100 dark:border-slate-800'
                     }`}
                   >
-                    <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 mb-1">
+                    <div className="flex items-center justify-between text-xs font-semibold text-slate-400 mb-1">
                       <span>{field.fieldName}</span>
                       <span className="font-mono text-teal-600 dark:text-teal-400">
                         {(field.confidence * 100).toFixed(0)}% Confidence
@@ -176,7 +182,7 @@ export const DocumentsView: React.FC = () => {
                       {field.value}
                     </div>
                     {field.flagged && (
-                      <div className="text-[11px] text-rose-600 dark:text-rose-400 mt-1 font-semibold flex items-center gap-1">
+                      <div className="text-xs text-rose-600 dark:text-rose-400 mt-1 font-semibold flex items-center gap-1">
                         <AlertTriangle className="w-3 h-3" />
                         <span>{field.flagReason || 'Missing required validation data'}</span>
                       </div>
@@ -251,7 +257,7 @@ export const DocumentsView: React.FC = () => {
               <div className="text-xs font-bold text-slate-900 dark:text-white">
                 Drag & Drop Document File or Click to Browse
               </div>
-              <div className="text-[10px] text-slate-500 mt-1">
+              <div className="text-xs text-slate-500 mt-1">
                 Supports PDF, PNG, JPG, DICOM with HIPAA-safe encryption
               </div>
             </div>

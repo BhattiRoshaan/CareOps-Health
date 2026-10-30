@@ -51,8 +51,8 @@ export const AIAgentsView: React.FC = () => {
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-[10px] font-bold font-mono text-slate-400">{agent.id}</span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.2 rounded-full">
+                    <span className="text-xs font-bold font-mono text-slate-400">{agent.id}</span>
+                    <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.2 rounded-full">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       {agent.status}
                     </span>
@@ -67,12 +67,12 @@ export const AIAgentsView: React.FC = () => {
                     </h3>
                   </div>
 
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
                     {agent.description ?? agent.roleDescription}
                   </p>
                 </div>
 
-                <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
+                <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
                   <span className="font-semibold text-slate-700 dark:text-slate-300 font-mono">
                     {agent.accuracyRate ?? agent.accuracyScore ?? 99}% Accuracy
                   </span>
@@ -96,22 +96,22 @@ export const AIAgentsView: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">{selectedAgent.name}</h3>
-                  <span className="text-[10px] font-mono text-teal-600 bg-teal-50 dark:bg-teal-950 px-1.5 py-0.2 rounded font-bold">
+                  <span className="text-xs font-mono text-teal-600 bg-teal-50 dark:bg-teal-950 px-1.5 py-0.2 rounded font-bold">
                     {selectedAgent.id}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">{selectedAgent.description ?? selectedAgent.roleDescription}</p>
+                <p className="text-xs text-slate-500 mt-1">{selectedAgent.description ?? selectedAgent.roleDescription}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-center">
                 <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">Today's Executions</div>
+                  <div className="text-xs font-bold text-slate-400 uppercase">Today's Executions</div>
                   <div className="text-base font-extrabold text-slate-900 dark:text-white mt-0.5">
                     {(selectedAgent.handledRequestsToday ?? selectedAgent.handledQueriesToday ?? 0).toLocaleString()}
                   </div>
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">Latency Target</div>
+                  <div className="text-xs font-bold text-slate-400 uppercase">Latency Target</div>
                   <div className="text-base font-extrabold text-teal-600 dark:text-teal-400 mt-0.5">
                     {(selectedAgent.averageLatencySec ?? (selectedAgent.avgLatencyMs ? (selectedAgent.avgLatencyMs / 1000).toFixed(2) : 0.25))}s
                   </div>
@@ -119,10 +119,10 @@ export const AIAgentsView: React.FC = () => {
               </div>
 
               <div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase mb-1.5">Assigned Domain Tools</div>
+                <div className="text-xs font-bold text-slate-400 uppercase mb-1.5">Assigned Domain Tools</div>
                 <div className="flex flex-wrap gap-1">
                   {selectedAgent.tools.map((t, idx) => (
-                    <span key={idx} className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-[10px]">
+                    <span key={idx} className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs">
                       🔧 {t}
                     </span>
                   ))}
@@ -130,8 +130,8 @@ export const AIAgentsView: React.FC = () => {
               </div>
 
               <div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">System Prompt Directive</div>
-                <div className="p-3 rounded-xl bg-slate-950 text-slate-300 font-mono text-[11px] leading-relaxed border border-slate-800">
+                <div className="text-xs font-bold text-slate-400 uppercase mb-1">System Prompt Directive</div>
+                <div className="p-3 rounded-xl bg-slate-950 text-slate-300 font-mono text-xs leading-relaxed border border-slate-800">
                   {selectedAgent.systemPromptSummary || (selectedAgent as any).systemPrompt || 'Directive active.'}
                 </div>
               </div>

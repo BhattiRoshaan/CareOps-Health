@@ -80,7 +80,7 @@ export const AnalyticsView: React.FC = () => {
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
             {(aiMetrics?.conversationsHandled ?? aiMetrics?.totalConversations ?? 4328).toLocaleString()}
           </div>
-          <div className="text-[11px] text-emerald-600 font-medium mt-1">
+          <div className="text-xs text-emerald-600 font-medium mt-1">
             +18.4% compared to previous month
           </div>
         </div>
@@ -90,7 +90,7 @@ export const AnalyticsView: React.FC = () => {
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
             {aiMetrics?.firstContactResolutionRate ?? 91.2}%
           </div>
-          <div className="text-[11px] text-teal-600 font-medium mt-1">
+          <div className="text-xs text-teal-600 font-medium mt-1">
             Zero repetitive transfers
           </div>
         </div>
@@ -100,7 +100,7 @@ export const AnalyticsView: React.FC = () => {
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
             {aiMetrics?.voiceAvgLatencySec ?? 1.2}s
           </div>
-          <div className="text-[11px] text-blue-600 font-medium mt-1">
+          <div className="text-xs text-blue-600 font-medium mt-1">
             Low-latency streaming WebRTC
           </div>
         </div>
@@ -110,7 +110,7 @@ export const AnalyticsView: React.FC = () => {
           <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
             {aiMetrics?.priorAuthAvgTurnaroundHours ?? 3.2}h
           </div>
-          <div className="text-[11px] text-purple-600 font-medium mt-1">
+          <div className="text-xs text-purple-600 font-medium mt-1">
             96% faster than 72h manual SLA
           </div>
         </div>

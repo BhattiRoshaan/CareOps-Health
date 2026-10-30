@@ -18,9 +18,15 @@ import {
 import { exportClaimsToCSV } from '../../utils/exportUtils';
 
 export const ClaimsView: React.FC = () => {
-  const { claims, submitAppeal, openPatientQuickView, addToast } = useApp();
+  const { claims, submitAppeal, openPatientQuickView, addToast, searchQuery } = useApp();
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchQuery || '');
+
+  React.useEffect(() => {
+    if (searchQuery !== undefined) {
+      setSearch(searchQuery);
+    }
+  }, [searchQuery]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
   const [showAppealModal, setShowAppealModal] = useState(false);
@@ -92,13 +98,13 @@ CareOps Automated System`
   const getStatusBadge = (status: Claim['status']) => {
     switch (status) {
       case 'Approved':
-        return <span className="text-[11px] font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">Approved</span>;
+        return <span className="text-xs font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">Approved</span>;
       case 'Denied':
-        return <span className="text-[11px] font-medium text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">Denied</span>;
+        return <span className="text-xs font-medium text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">Denied</span>;
       case 'Appealed':
-        return <span className="text-[11px] font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded">Appealed</span>;
+        return <span className="text-xs font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded">Appealed</span>;
       default:
-        return <span className="text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">{status}</span>;
+        return <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">{status}</span>;
     }
   };
 
@@ -178,8 +184,8 @@ CareOps Automated System`
       {/* Claims Table */}
       <div className="rounded-xl bg-white border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-500 font-medium text-[11px]">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-500 font-semibold text-xs uppercase tracking-wider">
               <tr>
                 <th className="px-4 py-3">Claim ID</th>
                 <th className="px-4 py-3">Patient</th>
@@ -195,15 +201,15 @@ CareOps Automated System`
                 <tr key={claim.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="px-4 py-3 font-semibold font-mono text-slate-900">
                     {claim.id}
-                    <div className="text-[10px] text-slate-400 font-normal">{claim.serviceDate}</div>
+                    <div className="text-xs text-slate-400 font-normal">{claim.serviceDate}</div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="font-semibold text-slate-900">{claim.patientName}</div>
-                    <div className="text-[10px] text-slate-400 font-mono">{claim.patientId}</div>
+                    <div className="text-xs text-slate-400 font-mono">{claim.patientId}</div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="truncate max-w-[200px] text-slate-800">{claim.serviceDescription}</div>
-                    <div className="text-[10px] text-slate-500 font-mono">
+                    <div className="text-xs text-slate-500 font-mono">
                       {(claim.procedureCodes || claim.cptCodes || ['99214']).join(', ')}
                     </div>
                   </td>
@@ -216,7 +222,7 @@ CareOps Automated System`
                   <td className="px-4 py-3">
                     {getStatusBadge(claim.status)}
                     {claim.denialCategory && (
-                      <div className="text-[10px] text-rose-700 mt-0.5 truncate max-w-[140px]">
+                      <div className="text-xs text-rose-700 mt-0.5 truncate max-w-[140px]">
                         {claim.denialCategory}
                       </div>
                     )}
@@ -322,7 +328,7 @@ CareOps Automated System`
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
                 <span>Payer Denial Reason: {selectedClaim.denialReason}</span>
               </div>
-              <p className="text-[11px] text-slate-600">
+              <p className="text-xs text-slate-600">
                 CareOps pre-filled clinical encounter notes and medical necessity justification based on active ICD-10 diagnosis.
               </p>
             </div>
@@ -347,7 +353,7 @@ CareOps Automated System`
                 rows={9}
                 value={appealLetterDraft}
                 onChange={(e) => setAppealLetterDraft(e.target.value)}
-                className="w-full p-3 rounded-lg bg-slate-50 font-mono text-[11px] leading-relaxed border border-slate-200 text-slate-800 focus:outline-none focus:ring-1 focus:ring-teal-700"
+                className="w-full p-3 rounded-lg bg-slate-50 font-mono text-xs leading-relaxed border border-slate-200 text-slate-800 focus:outline-none focus:ring-1 focus:ring-teal-700"
               />
             </div>
 

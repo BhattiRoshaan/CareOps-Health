@@ -15,8 +15,8 @@ import {
   AIMetrics
 } from '../types';
 
-let currentUserId = 'USR-101';
-let currentUserRole = 'admin';
+let currentUserId = '';
+let currentUserRole = 'unauthenticated';
 let currentAuthToken = '';
 
 export function setApiAuth(userId: string, role: string, token?: string) {
@@ -42,6 +42,39 @@ function getAuthHeaders(): Record<string, string> {
 export const apiService = {
   setAuth(userId: string, role: string, token?: string) {
     setApiAuth(userId, role, token);
+  },
+
+  // Role Verification with Server
+  async verifyRole(email: string, uid?: string, name?: string, idToken?: string) {
+    const res = await fetch('/api/auth/verify-role', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(idToken ? { 'Authorization': `Bearer ${idToken}` } : {})
+      },
+      body: JSON.stringify({ email, uid, name })
+    });
+    return res.json();
+  },
+
+  // Hospital SSO Handshake (Epic/Cerner/SAML)
+  async hospitalSSO(payload: { provider: string; email: string; password?: string; mfaCode?: string }) {
+    const res = await fetch('/api/auth/hospital-sso', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    return res.json();
+  },
+
+  // Verified Role Switching
+  async switchRole(payload: { targetRole: string; staffEmail: string; mfaCode?: string }) {
+    const res = await fetch('/api/auth/switch-role', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload)
+    });
+    return res.json();
   },
 
   // Fetch initial data

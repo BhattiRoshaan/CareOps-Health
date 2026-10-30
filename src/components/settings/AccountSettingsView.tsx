@@ -165,10 +165,10 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
 
           <div>
             <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-              <span className="px-1.5 py-0.2 rounded text-[10px] font-medium uppercase tracking-wider bg-teal-50 text-teal-800 border border-teal-200">
+              <span className="px-1.5 py-0.2 rounded text-xs font-medium uppercase tracking-wider bg-teal-50 text-teal-800 border border-teal-200">
                 {currentUser.role.replace('_', ' ')}
               </span>
-              <span className="text-[11px] text-slate-400 font-mono">
+              <span className="text-xs text-slate-400 font-mono">
                 {currentUser.id}
               </span>
             </div>
@@ -210,7 +210,7 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
             <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
             <div>
               <div className="font-bold">Are you sure you want to log out?</div>
-              <div className="text-rose-700 text-[11px]">Your HIPAA session token will be invalidated and you will return to the sign-in screen.</div>
+              <div className="text-rose-700 text-xs">Your HIPAA session token will be invalidated and you will return to the sign-in screen.</div>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
@@ -435,14 +435,14 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
                 <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800">
                   {getRoleIcon(currentUser.role)}
                   <span className="capitalize">{currentUser.role.replace('_', ' ')}</span>
-                  <span className="ml-auto text-[10px] text-slate-500 font-normal">Managed via RBAC</span>
+                  <span className="ml-auto text-xs text-slate-500 font-normal">Managed via RBAC</span>
                 </div>
               </div>
             </div>
 
             {/* Submit Button */}
             <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-              <span className="text-[11px] text-slate-500">
+              <span className="text-xs text-slate-500">
                 Last updated: {currentUser.lastLogin || 'Today'}
               </span>
               <button
@@ -498,7 +498,7 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
                 <Smartphone className="w-4 h-4 text-slate-500" />
                 <span>Primary Verification Device: <strong>{phone}</strong></span>
               </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+              <span className="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">
                 Verified
               </span>
             </div>
@@ -587,10 +587,10 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
                   <Laptop className="w-5 h-5 text-teal-600" />
                   <div>
                     <div className="text-xs font-bold text-slate-800">Current Web Workstation (Chrome / macOS)</div>
-                    <div className="text-[11px] text-slate-500">IP: 192.168.1.104 • San Francisco, CA • Active Now</div>
+                    <div className="text-xs text-slate-500">IP: 192.168.1.104 • San Francisco, CA • Active Now</div>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-800">
+                <span className="px-2 py-0.5 rounded text-xs font-bold bg-teal-100 text-teal-800">
                   This Device
                 </span>
               </div>
@@ -662,7 +662,7 @@ export const AccountSettingsView: React.FC<AccountSettingsViewProps> = ({
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5">{item.desc}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{item.desc}</p>
                     </div>
                   </div>
 

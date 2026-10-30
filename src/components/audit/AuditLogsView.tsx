@@ -143,8 +143,8 @@ export const AuditLogsView: React.FC = () => {
       {/* Clean Table View */}
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-500 font-medium text-[11px]">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-500 font-semibold text-xs uppercase tracking-wider">
               <tr>
                 <th className="py-3 px-4">Timestamp & ID</th>
                 <th className="py-3 px-4">User & Role</th>
@@ -167,37 +167,37 @@ export const AuditLogsView: React.FC = () => {
                   <tr key={log.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="px-4 py-3 font-mono">
                       <div className="font-medium text-slate-800">{log.timestamp}</div>
-                      <div className="text-[10px] text-slate-400">{log.id}</div>
+                      <div className="text-xs text-slate-400">{log.id}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-semibold text-slate-900">{log.userName || log.userId}</div>
-                      <div className="text-[10px] text-teal-800 font-medium uppercase">{log.userRole}</div>
+                      <div className="text-xs text-teal-800 font-medium uppercase">{log.userRole}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-slate-900">{log.action}</div>
-                      <div className="text-[11px] text-slate-500 truncate max-w-xs">
+                      <div className="text-xs text-slate-500 truncate max-w-xs">
                         {log.notes || (log.aiAgentUsed ? `Processed by ${log.aiAgentUsed}` : 'Standard clinical operation')}
                       </div>
                     </td>
                     <td className="px-4 py-3 font-mono">
                       <div className="font-medium text-slate-800">{log.resourceType}</div>
-                      <div className="text-[10px] text-slate-400">{log.resourceId}</div>
+                      <div className="text-xs text-slate-400">{log.resourceId}</div>
                     </td>
                     <td className="px-4 py-3">
                       {log.phiAccessed ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-200/60">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200/60">
                           <Lock className="w-3 h-3" /> PHI Viewed
                         </span>
                       ) : (
-                        <span className="text-[10px] text-slate-400 font-medium">Non-PHI</span>
+                        <span className="text-xs text-slate-400 font-medium">Non-PHI</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-slate-500">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-500">
                       {log.ipAddress}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium border ${
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${
                           log.result === 'Success'
                             ? 'bg-emerald-50 text-emerald-800 border-emerald-200/60'
                             : log.result === 'Denied' || log.result === 'Failed'

@@ -169,18 +169,18 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                   <h2 id="patient-quick-view-title" className="text-base sm:text-lg font-semibold text-slate-900 truncate">
                     {patient.name}
                   </h2>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                  <span className="px-2 py-0.5 rounded text-xs font-mono font-medium bg-slate-100 text-slate-600 border border-slate-200">
                     {patient.id}
                   </span>
                   {isGlobalActive ? (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-teal-50 text-teal-800 border border-teal-200 flex items-center gap-1">
+                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-teal-50 text-teal-800 border border-teal-200 flex items-center gap-1">
                       <UserCheck className="w-3 h-3 text-teal-700" />
                       Active Context
                     </span>
                   ) : (
                     <button
                       onClick={handleSetGlobalActive}
-                      className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors cursor-pointer"
+                      className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors cursor-pointer"
                     >
                       Set as Active
                     </button>
@@ -200,7 +200,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                   </span>
                   <span>Member ID: <strong className="font-mono text-slate-800">{patient.memberId}</strong></span>
                   {patient.outstandingBalance > 0 && (
-                    <span className="text-slate-700 bg-slate-100 px-1.5 py-0.2 rounded text-[11px]">
+                    <span className="text-slate-700 bg-slate-100 px-1.5 py-0.2 rounded text-xs">
                       Balance: ${patient.outstandingBalance.toFixed(2)}
                     </span>
                   )}
@@ -250,7 +250,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
             >
               <Activity className="w-3.5 h-3.5" />
               <span>Vital Stats</span>
-              <span className={`px-1.5 py-0.2 rounded text-[10px] ${
+              <span className={`px-1.5 py-0.2 rounded text-xs ${
                 activeTab === 'vitals' ? 'bg-teal-900 text-teal-100' : 'bg-slate-100 text-slate-600'
               }`}>
                 {vitals.bloodPressure.status}
@@ -267,7 +267,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Recent Encounters</span>
-              <span className={`px-1.5 py-0.2 rounded text-[10px] ${
+              <span className={`px-1.5 py-0.2 rounded text-xs ${
                 activeTab === 'encounters' ? 'bg-teal-900 text-teal-100' : 'bg-slate-100 text-slate-600'
               }`}>
                 {encounters.length}
@@ -284,7 +284,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
             >
               <FileCheck2 className="w-3.5 h-3.5" />
               <span>Active Claims</span>
-              <span className={`px-1.5 py-0.2 rounded text-[10px] ${
+              <span className={`px-1.5 py-0.2 rounded text-xs ${
                 activeTab === 'claims' ? 'bg-teal-900 text-teal-100' : 'bg-slate-100 text-slate-600'
               }`}>
                 {patientClaims.length}
@@ -316,7 +316,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                   <Clock className="w-4 h-4 text-teal-600" />
                   <span>Last Encounter Vitals: <strong>{vitals.lastRecordedAt}</strong></span>
                 </div>
-                <span className="text-[11px] text-slate-500 font-medium truncate">
+                <span className="text-xs text-slate-500 font-medium truncate">
                   By {vitals.recordedBy}
                 </span>
               </div>
@@ -326,7 +326,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                 {/* Blood Pressure */}
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                       Blood Pressure
                     </span>
                     <Heart className="w-4 h-4 text-rose-500" />
@@ -336,7 +336,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                     <span className="text-xs font-normal text-slate-500 ml-1">mmHg</span>
                   </div>
                   <div className="flex items-center justify-between pt-1">
-                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                    <span className={`text-xs font-bold px-1.5 py-0.2 rounded ${
                       vitals.bloodPressure.status === 'Normal'
                         ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                         : vitals.bloodPressure.status === 'Elevated'
@@ -345,14 +345,14 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                     }`}>
                       {vitals.bloodPressure.status}
                     </span>
-                    <span className="text-[10px] text-slate-400">Target &lt;120/80</span>
+                    <span className="text-xs text-slate-400">Target &lt;120/80</span>
                   </div>
                 </div>
 
                 {/* Heart Rate */}
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                       Heart Rate
                     </span>
                     <Activity className="w-4 h-4 text-teal-600" />
@@ -362,10 +362,10 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                     <span className="text-xs font-normal text-slate-500 ml-1">bpm</span>
                   </div>
                   <div className="flex items-center justify-between pt-1">
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="text-xs font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                       {vitals.heartRate.status}
                     </span>
-                    <span className="text-[10px] text-slate-400 truncate max-w-[80px]" title={vitals.heartRate.rhythm}>
+                    <span className="text-xs text-slate-400 truncate max-w-[80px]" title={vitals.heartRate.rhythm}>
                       {vitals.heartRate.rhythm || 'Sinus'}
                     </span>
                   </div>
@@ -374,7 +374,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                 {/* SpO2 Saturation */}
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                       Oxygen Saturation
                     </span>
                     <Wind className="w-4 h-4 text-blue-500" />
@@ -384,17 +384,17 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                     <span className="text-xs font-normal text-slate-500 ml-1">SpO2</span>
                   </div>
                   <div className="flex items-center justify-between pt-1">
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="text-xs font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                       Normal
                     </span>
-                    <span className="text-[10px] text-slate-400">{vitals.spO2.delivery || 'Room Air'}</span>
+                    <span className="text-xs text-slate-400">{vitals.spO2.delivery || 'Room Air'}</span>
                   </div>
                 </div>
 
                 {/* Body Temp */}
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                       Temperature
                     </span>
                     <Thermometer className="w-4 h-4 text-amber-500" />
@@ -404,17 +404,17 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                     <span className="text-xs font-normal text-slate-500 ml-1">({vitals.temperature.celsius}°C)</span>
                   </div>
                   <div className="flex items-center justify-between pt-1">
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="text-xs font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                       Afebrile
                     </span>
-                    <span className="text-[10px] text-slate-400">Oral probe</span>
+                    <span className="text-xs text-slate-400">Oral probe</span>
                   </div>
                 </div>
 
                 {/* Respiratory Rate */}
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                       Respiration
                     </span>
                     <Wind className="w-4 h-4 text-teal-500" />
@@ -424,17 +424,17 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                     <span className="text-xs font-normal text-slate-500 ml-1">breaths/m</span>
                   </div>
                   <div className="flex items-center justify-between pt-1">
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="text-xs font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                       Unlabored
                     </span>
-                    <span className="text-[10px] text-slate-400">12-20 ref</span>
+                    <span className="text-xs text-slate-400">12-20 ref</span>
                   </div>
                 </div>
 
                 {/* Body Mass Index (BMI) & Weight */}
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                       Weight & BMI
                     </span>
                     <TrendingUp className="w-4 h-4 text-indigo-500" />
@@ -444,10 +444,10 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                     <span className="text-xs font-normal text-slate-500 ml-1">BMI</span>
                   </div>
                   <div className="flex items-center justify-between pt-1">
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-teal-50 text-teal-700 border border-teal-200">
+                    <span className="text-xs font-bold px-1.5 py-0.2 rounded bg-teal-50 text-teal-700 border border-teal-200">
                       {vitals.bmi.category}
                     </span>
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-xs text-slate-500">
                       {vitals.bmi.weightLbs} lbs ({vitals.bmi.heightFt})
                     </span>
                   </div>
@@ -456,7 +456,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                 {/* Fasting Blood Glucose */}
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                       Blood Glucose
                     </span>
                     <Activity className="w-4 h-4 text-emerald-600" />
@@ -466,17 +466,17 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                     <span className="text-xs font-normal text-slate-500 ml-1">mg/dL</span>
                   </div>
                   <div className="flex items-center justify-between pt-1">
-                    <span className="text-[10px] font-bold text-slate-600">
+                    <span className="text-xs font-bold text-slate-600">
                       HbA1c: {vitals.bloodGlucose?.hba1c ?? 5.4}%
                     </span>
-                    <span className="text-[10px] text-slate-400">Fasting</span>
+                    <span className="text-xs text-slate-400">Fasting</span>
                   </div>
                 </div>
 
                 {/* Pain Score */}
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                       Pain Score
                     </span>
                     <AlertCircle className="w-4 h-4 text-purple-500" />
@@ -485,7 +485,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                     {vitals.painScale?.score ?? 0}
                     <span className="text-xs font-normal text-slate-500 ml-1">/ 10</span>
                   </div>
-                  <div className="text-[10px] text-slate-500 truncate" title={vitals.painScale?.location || 'No active acute pain'}>
+                  <div className="text-xs text-slate-500 truncate" title={vitals.painScale?.location || 'No active acute pain'}>
                     {vitals.painScale?.location || 'No active pain'}
                   </div>
                 </div>
@@ -499,13 +499,13 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                       <TrendingUp className="w-4 h-4 text-teal-600" />
                       Longitudinal Vitals Trajectory (Past Encounters)
                     </h3>
-                    <span className="text-[11px] text-slate-400 font-mono">EHR Synced</span>
+                    <span className="text-xs text-slate-400 font-mono">EHR Synced</span>
                   </div>
 
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        <tr className="border-b border-slate-100 text-xs font-bold uppercase tracking-wider text-slate-400">
                           <th className="pb-2">Date</th>
                           <th className="pb-2">Blood Pressure</th>
                           <th className="pb-2">Heart Rate</th>
@@ -540,7 +540,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                   </div>
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {patient.allergies.map((allergy, i) => (
-                      <span key={i} className="px-2 py-0.5 rounded text-[11px] font-bold bg-white text-rose-700 border border-rose-300 shadow-2xs">
+                      <span key={i} className="px-2 py-0.5 rounded text-xs font-bold bg-white text-rose-700 border border-rose-300 shadow-2xs">
                         ⚠️ {allergy}
                       </span>
                     ))}
@@ -554,7 +554,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                   </div>
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {patient.conditions.map((condition, i) => (
-                      <span key={i} className="px-2 py-0.5 rounded text-[11px] font-semibold bg-white text-teal-800 border border-teal-300 shadow-2xs">
+                      <span key={i} className="px-2 py-0.5 rounded text-xs font-semibold bg-white text-teal-800 border border-teal-300 shadow-2xs">
                         {condition}
                       </span>
                     ))}
@@ -589,7 +589,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
                       <div className="flex items-center gap-2">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                        <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${
                           enc.status === 'Completed'
                             ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                             : 'bg-blue-50 text-blue-800 border border-blue-200'
@@ -615,11 +615,11 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                       <div className="text-slate-700 font-semibold">
                         Chief Complaint: <span className="font-normal text-slate-800">{enc.chiefComplaint}</span>
                       </div>
-                      <div className="text-slate-600 leading-relaxed text-[11px]">
+                      <div className="text-slate-600 leading-relaxed text-xs">
                         <strong>Clinical Assessment & Summary:</strong> {enc.clinicalSummary}
                       </div>
                       {enc.vitalsSummary && (
-                        <div className="text-[11px] font-mono text-teal-700 pt-0.5">
+                        <div className="text-xs font-mono text-teal-700 pt-0.5">
                           Recorded Vitals: {enc.vitalsSummary}
                         </div>
                       )}
@@ -627,16 +627,16 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
 
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">ICD-10:</span>
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">ICD-10:</span>
                         {enc.diagnoses.map((diag, i) => (
-                          <span key={i} className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700">
+                          <span key={i} className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
                             {diag}
                           </span>
                         ))}
                       </div>
 
                       {enc.treatmentPlan && (
-                        <span className="text-[11px] text-slate-500 italic max-w-xs truncate" title={enc.treatmentPlan}>
+                        <span className="text-xs text-slate-500 italic max-w-xs truncate" title={enc.treatmentPlan}>
                           Plan: {enc.treatmentPlan}
                         </span>
                       )}
@@ -658,10 +658,10 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                       <div key={appt.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
                         <div>
                           <div className="font-bold text-slate-900">{appt.type} with {appt.providerName}</div>
-                          <div className="text-[11px] text-slate-500">{appt.date} at {appt.time} • {appt.department}</div>
-                          <div className="text-[11px] text-slate-600 mt-0.5">Reason: {appt.reasonForVisit}</div>
+                          <div className="text-xs text-slate-500">{appt.date} at {appt.time} • {appt.department}</div>
+                          <div className="text-xs text-slate-600 mt-0.5">Reason: {appt.reasonForVisit}</div>
                         </div>
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        <span className={`px-2 py-0.5 rounded text-xs font-bold ${
                           appt.status === 'Confirmed' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'
                         }`}>
                           {appt.status}
@@ -716,7 +716,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold font-mono text-slate-900">{claim.id}</span>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                          <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${
                             claim.status === 'Denied'
                               ? 'bg-rose-100 text-rose-800 border border-rose-200'
                               : claim.status === 'Approved'
@@ -726,7 +726,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                             {claim.status}
                           </span>
                           {claim.denialCategory && (
-                            <span className="text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                            <span className="text-xs font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
                               {claim.denialCategory}
                             </span>
                           )}
@@ -742,7 +742,7 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                         <div className="text-xs font-bold text-slate-800">
                           {claim.serviceDescription}
                         </div>
-                        <div className="text-[11px] text-slate-500 mt-0.5 flex flex-wrap gap-2">
+                        <div className="text-xs text-slate-500 mt-0.5 flex flex-wrap gap-2">
                           <span>CPT: <strong>{(claim.procedureCodes || claim.cptCodes || []).join(', ')}</strong></span>
                           <span>•</span>
                           <span>Billing Provider: {claim.providerName} ({claim.department})</span>
@@ -752,19 +752,19 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                       {/* Financial Amounts breakdown */}
                       <div className="grid grid-cols-4 gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-center">
                         <div>
-                          <div className="text-[10px] text-slate-400 uppercase font-semibold">Submitted</div>
+                          <div className="text-xs text-slate-400 uppercase font-semibold">Submitted</div>
                           <div className="text-xs font-bold text-slate-800">${(claim.submittedAmount || claim.totalBilledAmount || 0).toFixed(2)}</div>
                         </div>
                         <div>
-                          <div className="text-[10px] text-slate-400 uppercase font-semibold">Allowed</div>
+                          <div className="text-xs text-slate-400 uppercase font-semibold">Allowed</div>
                           <div className="text-xs font-bold text-slate-800">${(claim.allowedAmount || 0).toFixed(2)}</div>
                         </div>
                         <div>
-                          <div className="text-[10px] text-slate-400 uppercase font-semibold">Payer Paid</div>
+                          <div className="text-xs text-slate-400 uppercase font-semibold">Payer Paid</div>
                           <div className="text-xs font-bold text-emerald-600">${(claim.paidAmount || 0).toFixed(2)}</div>
                         </div>
                         <div>
-                          <div className="text-[10px] text-slate-400 uppercase font-semibold">Patient Resp</div>
+                          <div className="text-xs text-slate-400 uppercase font-semibold">Patient Resp</div>
                           <div className="text-xs font-bold text-amber-600">${(claim.patientResponsibility || 0).toFixed(2)}</div>
                         </div>
                       </div>
@@ -776,13 +776,13 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                             <strong>Payer Denial Remark:</strong> {claim.denialReason}
                           </div>
                           {claim.recommendedAction && (
-                            <div className="text-slate-600 text-[11px]">
+                            <div className="text-slate-600 text-xs">
                               <strong>Recommended Resolution:</strong> {claim.recommendedAction}
                             </div>
                           )}
 
                           <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-                            <span className="text-[11px] text-slate-500">
+                            <span className="text-xs text-slate-500">
                               Appeal Status: <strong className="text-slate-800">{claim.appealStatus || 'Drafted'}</strong>
                             </span>
                             <button
@@ -812,21 +812,21 @@ export const PatientQuickView: React.FC<PatientQuickViewProps> = ({
                     <ShieldCheck className="w-4 h-4 text-teal-600" />
                     Insurance Verification & Benefits
                   </h3>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                     270/271 Active
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="p-3 rounded-xl bg-slate-50 space-y-1">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">Payer Details</div>
+                    <div className="text-xs font-bold uppercase text-slate-400">Payer Details</div>
                     <div className="font-bold text-slate-900">{patient.insuranceName}</div>
                     <div className="text-slate-600">Member ID: <span className="font-mono font-semibold">{patient.memberId}</span></div>
                     <div className="text-slate-600">Group #: <span className="font-mono">{patient.groupNumber}</span></div>
                   </div>
 
                   <div className="p-3 rounded-xl bg-slate-50 space-y-1">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">Financial Account</div>
+                    <div className="text-xs font-bold uppercase text-slate-400">Financial Account</div>
                     <div className="font-bold text-slate-900">
                       Balance Due: <span className={patient.outstandingBalance > 0 ? 'text-amber-600' : 'text-emerald-600'}>
                         ${patient.outstandingBalance.toFixed(2)}

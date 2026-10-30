@@ -89,7 +89,7 @@ export const DashboardView: React.FC = () => {
           >
             <Activity className="w-3.5 h-3.5 text-teal-700" />
             <span>Active: <strong>{activePatient.name}</strong></span>
-            <span className="text-[10px] text-teal-700 font-mono">({activePatient.id})</span>
+            <span className="text-xs text-teal-700 font-mono">({activePatient.id})</span>
           </button>
 
           <button
@@ -109,7 +109,7 @@ export const DashboardView: React.FC = () => {
           <div className="text-2xl font-semibold text-slate-800 mt-1">
             {aiMetrics?.automationRate ?? 85.4}%
           </div>
-          <div className="text-[11px] text-teal-800 mt-0.5">
+          <div className="text-xs text-teal-800 mt-0.5">
             {(aiMetrics?.conversationsHandled ?? 4328).toLocaleString()} inquiries resolved
           </div>
         </div>
@@ -119,7 +119,7 @@ export const DashboardView: React.FC = () => {
           <div className="text-2xl font-semibold text-slate-800 mt-1">
             {deniedClaims.length}
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">
+          <div className="text-xs text-slate-500 mt-0.5">
             {aiMetrics.claimsAppealedAI} automated appeals
           </div>
         </div>
@@ -129,7 +129,7 @@ export const DashboardView: React.FC = () => {
           <div className="text-2xl font-semibold text-slate-800 mt-1">
             {todayAppointments.length}
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">
+          <div className="text-xs text-slate-500 mt-0.5">
             {aiMetrics.appointmentsBookedAI} confirmed via scheduler
           </div>
         </div>
@@ -139,7 +139,7 @@ export const DashboardView: React.FC = () => {
           <div className="text-2xl font-semibold text-slate-800 mt-1">
             {openInvoices.length}
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">
+          <div className="text-xs text-slate-500 mt-0.5">
             Pending patient responsibility
           </div>
         </div>
@@ -178,11 +178,11 @@ export const DashboardView: React.FC = () => {
                   <div className="text-xs font-semibold text-slate-800 truncate">
                     {p.name}
                   </div>
-                  <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+                  <div className="text-xs text-slate-500 font-mono mt-0.5">
                     {p.id} · {p.gender}
                   </div>
                 </div>
-                <div className="mt-2 text-[11px] text-teal-800 font-medium flex items-center gap-1">
+                <div className="mt-2 text-xs text-teal-800 font-medium flex items-center gap-1">
                   <Eye className="w-3 h-3 text-teal-700" />
                   <span>Quick View</span>
                 </div>
@@ -222,7 +222,7 @@ export const DashboardView: React.FC = () => {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-slate-800">{claim.id}</span>
-                    <span className="text-[10px] text-rose-700 bg-rose-50 px-1.5 py-0.2 rounded font-medium">
+                    <span className="text-xs text-rose-700 bg-rose-50 px-1.5 py-0.2 rounded font-medium">
                       {claim.denialCategory}
                     </span>
                   </div>
@@ -280,7 +280,7 @@ export const DashboardView: React.FC = () => {
                   <div className="text-xs font-semibold text-slate-800 truncate">
                     {appt.patientName}
                   </div>
-                  <div className="text-[11px] text-slate-500 truncate mt-0.5">
+                  <div className="text-xs text-slate-500 truncate mt-0.5">
                     {appt.time} · with {appt.providerName} · {appt.department}
                   </div>
                 </div>
@@ -313,11 +313,11 @@ export const DashboardView: React.FC = () => {
                 <h3 className="text-xs font-semibold text-slate-800">
                   {sc.title}
                 </h3>
-                <p className="text-[11px] text-slate-500 mt-1 leading-normal">
+                <p className="text-xs text-slate-500 mt-1 leading-normal">
                   {sc.desc}
                 </p>
               </div>
-              <div className="mt-2 text-[11px] text-teal-800 font-medium">
+              <div className="mt-2 text-xs text-teal-800 font-medium">
                 Run workflow →
               </div>
             </button>

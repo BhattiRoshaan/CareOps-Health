@@ -18,10 +18,17 @@ export const PatientsView: React.FC = () => {
     activePatient,
     setActivePatientId,
     openPatientQuickView,
-    addToast
+    addToast,
+    searchQuery
   } = useApp();
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchQuery || '');
+
+  React.useEffect(() => {
+    if (searchQuery !== undefined) {
+      setSearch(searchQuery);
+    }
+  }, [searchQuery]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
@@ -74,8 +81,8 @@ export const PatientsView: React.FC = () => {
       {/* Clean, Spacious Patients Table */}
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-500 font-medium text-[11px]">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-500 font-semibold text-xs uppercase tracking-wider">
               <tr>
                 <th className="py-3 px-4">Patient</th>
                 <th className="py-3 px-4">DOB / Gender</th>
@@ -103,19 +110,19 @@ export const PatientsView: React.FC = () => {
                         </div>
                         <div>
                           <div className="font-semibold text-slate-900">{p.name}</div>
-                          <div className="text-[11px] text-slate-500 font-mono">{p.id}</div>
+                          <div className="text-xs text-slate-500 font-mono">{p.id}</div>
                         </div>
                       </div>
                     </td>
 
                     <td className="py-3.5 px-4 text-slate-600">
                       <div>{p.dateOfBirth || p.dob}</div>
-                      <div className="text-[11px] text-slate-400">{p.gender}</div>
+                      <div className="text-xs text-slate-400">{p.gender}</div>
                     </td>
 
                     <td className="py-3.5 px-4 text-slate-600">
                       <div>{p.insuranceName}</div>
-                      <div className="text-[11px] text-slate-400 font-mono">{p.memberId}</div>
+                      <div className="text-xs text-slate-400 font-mono">{p.memberId}</div>
                     </td>
 
                     <td className="py-3.5 px-4 text-slate-600">

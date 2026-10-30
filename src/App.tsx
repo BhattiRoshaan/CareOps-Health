@@ -17,8 +17,10 @@ import {
   MessageSquare,
   Mic,
   FileCheck2,
-  Menu
+  Menu,
+  ShieldAlert
 } from 'lucide-react';
+import { PageId, UserRole } from './types';
 
 import { DashboardView } from './components/dashboard/DashboardView';
 import { AIChatView } from './components/chat/AIChatView';
@@ -39,9 +41,23 @@ import { SettingsView } from './components/settings/SettingsView';
 import { WorkQueuesView } from './components/queues/WorkQueuesView';
 import { AccessibilityModal } from './components/common/AccessibilityModal';
 
+const ROLE_ALLOWED_PAGES: Record<UserRole, PageId[]> = {
+  patient: ['dashboard', 'appointments', 'providers', 'insurance', 'claims', 'billing', 'documents', 'chat', 'voice', 'account-settings'],
+  provider: ['dashboard', 'queues', 'patients', 'appointments', 'providers', 'documents', 'escalations', 'knowledge', 'chat', 'voice', 'account-settings'],
+  billing: ['dashboard', 'queues', 'patients', 'insurance', 'claims', 'billing', 'documents', 'escalations', 'knowledge', 'analytics', 'chat', 'voice', 'account-settings'],
+  claims: ['dashboard', 'queues', 'patients', 'insurance', 'claims', 'documents', 'escalations', 'knowledge', 'analytics', 'chat', 'voice', 'account-settings'],
+  ops_manager: ['dashboard', 'queues', 'patients', 'appointments', 'providers', 'insurance', 'claims', 'billing', 'documents', 'escalations', 'knowledge', 'agents', 'analytics', 'audit', 'settings', 'chat', 'voice', 'account-settings'],
+  admin: [
+    'dashboard', 'queues', 'chat', 'voice', 'patients', 'appointments', 'providers',
+    'insurance', 'claims', 'billing', 'documents', 'escalations', 'knowledge',
+    'agents', 'analytics', 'audit', 'account-settings', 'settings'
+  ]
+};
+
 const MainContent: React.FC = () => {
   const {
     isAuthenticated,
+    currentUser,
     isAuthModalOpen,
     setIsAuthModalOpen,
     authInitialTab,
@@ -72,7 +88,33 @@ const MainContent: React.FC = () => {
     );
   }
 
+  // Enforce per-role page authorization guard (Tenant Isolation & HIPAA Minimum Necessary)
+  const allowedPages = ROLE_ALLOWED_PAGES[currentUser.role] || ['dashboard', 'account-settings'];
+  const isPageAuthorized = allowedPages.includes(activePage);
+
   const renderActiveView = () => {
+    if (!isPageAuthorized) {
+      return (
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-50 min-h-[500px]">
+          <div className="w-14 h-14 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mb-4 shadow-xs">
+            <ShieldAlert className="w-7 h-7 text-rose-600" />
+          </div>
+          <h2 className="text-lg font-bold text-slate-900 mb-1">
+            Access Restricted: Role Authorization Required
+          </h2>
+          <p className="text-xs text-slate-600 max-w-md mb-4 leading-relaxed">
+            Your active identity ({currentUser.name}) is certified with role <strong className="uppercase text-slate-900">{currentUser.role}</strong>. Under HIPAA Minimum Necessary standards and tenant data isolation policies, this operational module ({activePage}) is reserved for authorized clinical or administrative personnel.
+          </p>
+          <button
+            onClick={() => setActivePage('dashboard')}
+            className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold text-xs shadow-xs transition-colors cursor-pointer"
+          >
+            Return to Authorized Dashboard
+          </button>
+        </div>
+      );
+    }
+
     switch (activePage) {
       case 'dashboard':
         return <DashboardView />;

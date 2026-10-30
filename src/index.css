@@ -10,9 +10,33 @@
   body {
     background-color: #f8fafb;
     color: #0f172a;
+    font-size: 14px;
+    line-height: 1.5;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     @apply antialiased selection:bg-teal-700/20 selection:text-teal-900;
   }
+
+  /* 14px minimum standard for operational healthcare tables */
+  table {
+    font-size: 14px;
+  }
+
+  table thead th {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+  }
+
+  table tbody td {
+    font-size: 14px;
+  }
+}
+
+/* Accessibility & Readability: strict 12px minimum across all badges, labels, and helper text */
+.text-\[10px\],
+.text-\[11px\] {
+  font-size: 12px !important;
+  line-height: 16px !important;
 }
 
 /* Accessibility Typography Scaling */

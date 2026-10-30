@@ -64,36 +64,138 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, isOpen = fal
   const reviewDocsCount = documents.filter(d => d.status === 'Review Required').length;
 
   const coreNavItems: NavItem[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'queues', label: 'Work Queues', icon: Layers, badge: deniedClaimsCount + unpaidInvoicesCount, badgeVariant: 'warning' },
-    { id: 'chat', label: 'AI Assistant', icon: MessageSquare },
-    { id: 'voice', label: 'Voice AI Studio', icon: Mic }
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      allowedRoles: ['patient', 'provider', 'billing', 'claims', 'ops_manager', 'admin']
+    },
+    {
+      id: 'queues',
+      label: 'Work Queues',
+      icon: Layers,
+      badge: deniedClaimsCount + unpaidInvoicesCount,
+      badgeVariant: 'warning',
+      allowedRoles: ['billing', 'claims', 'provider', 'ops_manager', 'admin']
+    },
+    {
+      id: 'chat',
+      label: 'AI Assistant',
+      icon: MessageSquare,
+      allowedRoles: ['patient', 'provider', 'billing', 'claims', 'ops_manager', 'admin']
+    },
+    {
+      id: 'voice',
+      label: 'Voice AI Studio',
+      icon: Mic,
+      allowedRoles: ['patient', 'provider', 'billing', 'claims', 'ops_manager', 'admin']
+    }
   ];
 
   const clinicalNavItems: NavItem[] = [
-    { id: 'patients', label: 'Patients', icon: Users, badge: 25 },
-    { id: 'appointments', label: 'Appointments', icon: Calendar, badge: appointments.length },
-    { id: 'providers', label: 'Providers', icon: UserCheck }
+    {
+      id: 'patients',
+      label: 'Patients',
+      icon: Users,
+      badge: 25,
+      allowedRoles: ['provider', 'billing', 'claims', 'ops_manager', 'admin']
+    },
+    {
+      id: 'appointments',
+      label: 'Appointments',
+      icon: Calendar,
+      badge: appointments.length,
+      allowedRoles: ['patient', 'provider', 'ops_manager', 'admin']
+    },
+    {
+      id: 'providers',
+      label: 'Providers',
+      icon: UserCheck,
+      allowedRoles: ['patient', 'provider', 'ops_manager', 'admin']
+    }
   ];
 
   const revenueNavItems: NavItem[] = [
-    { id: 'insurance', label: 'Insurance & Eligibility', icon: ShieldCheck },
-    { id: 'claims', label: 'Claims & Denials', icon: FileCheck2, badge: deniedClaimsCount > 0 ? deniedClaimsCount : undefined, badgeVariant: 'danger' },
-    { id: 'billing', label: 'Billing & Invoices', icon: CreditCard, badge: unpaidInvoicesCount > 0 ? unpaidInvoicesCount : undefined, badgeVariant: 'warning' }
+    {
+      id: 'insurance',
+      label: 'Insurance & Eligibility',
+      icon: ShieldCheck,
+      allowedRoles: ['patient', 'billing', 'claims', 'ops_manager', 'admin']
+    },
+    {
+      id: 'claims',
+      label: 'Claims & Denials',
+      icon: FileCheck2,
+      badge: deniedClaimsCount > 0 ? deniedClaimsCount : undefined,
+      badgeVariant: 'danger',
+      allowedRoles: ['patient', 'claims', 'billing', 'ops_manager', 'admin']
+    },
+    {
+      id: 'billing',
+      label: 'Billing & Invoices',
+      icon: CreditCard,
+      badge: unpaidInvoicesCount > 0 ? unpaidInvoicesCount : undefined,
+      badgeVariant: 'warning',
+      allowedRoles: ['patient', 'billing', 'ops_manager', 'admin']
+    }
   ];
 
   const intelligenceNavItems: NavItem[] = [
-    { id: 'documents', label: 'Documents & OCR', icon: FileText, badge: reviewDocsCount > 0 ? reviewDocsCount : undefined, badgeVariant: 'warning' },
-    { id: 'escalations', label: 'Staff Escalations', icon: Headphones, badge: pendingTicketsCount > 0 ? pendingTicketsCount : undefined, badgeVariant: 'danger' },
-    { id: 'knowledge', label: 'SOPs & Guidelines', icon: BookOpen },
-    { id: 'agents', label: 'Micro-Agents', icon: Cpu }
+    {
+      id: 'documents',
+      label: 'Documents & OCR',
+      icon: FileText,
+      badge: reviewDocsCount > 0 ? reviewDocsCount : undefined,
+      badgeVariant: 'warning',
+      allowedRoles: ['patient', 'provider', 'billing', 'claims', 'ops_manager', 'admin']
+    },
+    {
+      id: 'escalations',
+      label: 'Staff Escalations',
+      icon: Headphones,
+      badge: pendingTicketsCount > 0 ? pendingTicketsCount : undefined,
+      badgeVariant: 'danger',
+      allowedRoles: ['provider', 'billing', 'claims', 'ops_manager', 'admin']
+    },
+    {
+      id: 'knowledge',
+      label: 'SOPs & Guidelines',
+      icon: BookOpen,
+      allowedRoles: ['provider', 'billing', 'claims', 'ops_manager', 'admin']
+    },
+    {
+      id: 'agents',
+      label: 'Micro-Agents',
+      icon: Cpu,
+      allowedRoles: ['ops_manager', 'admin']
+    }
   ];
 
   const governanceNavItems: NavItem[] = [
-    { id: 'analytics', label: 'Operations Analytics', icon: BarChart3 },
-    { id: 'audit', label: 'Compliance & Audit', icon: Lock },
-    { id: 'account-settings', label: 'Account & Security', icon: User },
-    { id: 'settings', label: 'System Settings', icon: Settings }
+    {
+      id: 'analytics',
+      label: 'Operations Analytics',
+      icon: BarChart3,
+      allowedRoles: ['billing', 'claims', 'ops_manager', 'admin']
+    },
+    {
+      id: 'audit',
+      label: 'Compliance & Audit',
+      icon: Lock,
+      allowedRoles: ['admin', 'ops_manager']
+    },
+    {
+      id: 'account-settings',
+      label: 'Account & Security',
+      icon: User,
+      allowedRoles: ['patient', 'provider', 'billing', 'claims', 'ops_manager', 'admin']
+    },
+    {
+      id: 'settings',
+      label: 'System Settings',
+      icon: Settings,
+      allowedRoles: ['admin', 'ops_manager']
+    }
   ];
 
   const handleSelectPage = (id: PageId) => {
@@ -104,11 +206,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, isOpen = fal
   };
 
   const roleFocusPages: Record<UserRole, PageId[]> = {
-    patient: ['dashboard', 'appointments', 'billing', 'documents', 'chat', 'voice', 'account-settings'],
-    provider: ['dashboard', 'patients', 'appointments', 'providers', 'documents', 'chat', 'voice', 'account-settings'],
-    billing: ['dashboard', 'queues', 'billing', 'claims', 'insurance', 'chat', 'analytics', 'account-settings'],
-    claims: ['dashboard', 'queues', 'claims', 'insurance', 'documents', 'escalations', 'chat', 'account-settings'],
-    ops_manager: ['dashboard', 'queues', 'escalations', 'knowledge', 'agents', 'analytics', 'audit', 'chat', 'account-settings'],
+    patient: ['dashboard', 'appointments', 'providers', 'insurance', 'claims', 'billing', 'documents', 'chat', 'voice', 'account-settings'],
+    provider: ['dashboard', 'queues', 'patients', 'appointments', 'providers', 'documents', 'escalations', 'knowledge', 'chat', 'voice', 'account-settings'],
+    billing: ['dashboard', 'queues', 'patients', 'insurance', 'claims', 'billing', 'documents', 'escalations', 'knowledge', 'analytics', 'chat', 'voice', 'account-settings'],
+    claims: ['dashboard', 'queues', 'patients', 'insurance', 'claims', 'documents', 'escalations', 'knowledge', 'analytics', 'chat', 'voice', 'account-settings'],
+    ops_manager: ['dashboard', 'queues', 'patients', 'appointments', 'providers', 'insurance', 'claims', 'billing', 'documents', 'escalations', 'knowledge', 'agents', 'analytics', 'audit', 'settings', 'chat', 'voice', 'account-settings'],
     admin: [
       'dashboard', 'queues', 'chat', 'voice', 'patients', 'appointments', 'providers',
       'insurance', 'claims', 'billing', 'documents', 'escalations', 'knowledge',
@@ -217,7 +319,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, isOpen = fal
             />
             <div className="min-w-0 flex-1">
               <div className="text-xs font-semibold text-slate-900 truncate">{currentUser.name}</div>
-              <div className="text-[11px] text-slate-500 truncate capitalize">
+              <div className="text-xs text-slate-500 truncate capitalize">
                 {currentUser.role.replace('_', ' ')}
               </div>
             </div>
@@ -252,7 +354,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobile = false, isOpen = fal
       ) : (
         <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200 shrink-0 space-y-2">
           <div className="text-xs font-semibold text-slate-800">CareOps Portal</div>
-          <p className="text-[11px] text-slate-500">Sign in to manage patient records and claims.</p>
+          <p className="text-xs text-slate-500">Sign in to manage patient records and claims.</p>
           <button
             onClick={() => {
               if (isMobile && onClose) onClose();

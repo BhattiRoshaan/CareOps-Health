@@ -40,6 +40,10 @@ import {
   auth,
   testConnection,
   signInWithGoogle,
+  signInWithEmail,
+  signUpWithEmail,
+  sendPasswordReset,
+  getVerifiedTokenClaims,
   logoutFirebase,
   onAuthStateChanged,
   FirebaseUser
@@ -80,8 +84,11 @@ interface AppContextType {
   users: UserProfile[];
   firebaseUser: FirebaseUser | null;
   isFirestoreConnected: boolean;
-  login: (email: string, password?: string, role?: UserRole) => Promise<{ success: boolean; message?: string }>;
+  login: (email: string, password?: string) => Promise<{ success: boolean; message?: string }>;
   loginWithGoogle: () => Promise<boolean>;
+  loginWithHospitalSSO: (provider: string, email: string, password?: string, mfaCode?: string) => Promise<{ success: boolean; message?: string }>;
+  switchRoleWithCredentials: (targetRole: UserRole, staffEmail: string, mfaCode?: string) => Promise<{ success: boolean; message?: string }>;
+  resetPassword: (email: string) => Promise<{ success: boolean; message?: string }>;
   signup: (data: {
     name: string;
     email: string;
@@ -193,8 +200,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   });
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
-  const [currentUser, setCurrentUser] = useState<UserProfile>(() => users[0]); // Default to Eleanor Vance
+  // User strictly starts unauthenticated per HIPAA access control requirements
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<UserProfile>(() => ({
+    id: 'USR-GUEST',
+    name: 'Unauthenticated User',
+    email: '',
+    role: 'patient',
+    title: 'Guest Session',
+    lastLogin: '',
+    twoFactorEnabled: false
+  }));
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isFirestoreConnected, setIsFirestoreConnected] = useState<boolean>(false);
 
@@ -321,39 +337,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsPatientQuickViewOpen(false);
   };
 
-  // Firebase Auth State Listener & Firestore Real-Time Subscriptions
+  // Firebase Auth State Listener & Authenticated Firestore Sync
   useEffect(() => {
     let unsubs: (() => void)[] = [];
 
-    // 1. Listen to Firebase Auth
-    const unsubAuth = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setFirebaseUser(user);
-        const isAdmin = user.email === 'bhattiroshaan248@gmail.com' || (user.email && user.email.includes('admin'));
-        const role: UserRole = isAdmin ? 'admin' : 'patient';
-
-        const profile: UserProfile = {
-          id: user.uid,
-          name: user.displayName || user.email?.split('@')[0] || 'CareOps User',
-          email: user.email || 'user@example.com',
-          role,
-          avatar: user.photoURL || undefined,
-          title: isAdmin ? 'Chief Operating Officer & Admin' : 'Insured Patient',
-          department: isAdmin ? 'Executive Operations' : undefined,
-          patientId: role === 'patient' ? 'PAT-1001' : undefined,
-          lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }),
-          twoFactorEnabled: true
-        };
-
-        setCurrentUser(profile);
-        setIsAuthenticated(true);
-        syncUserProfileToFirestore(profile);
-      }
-    });
-    unsubs.push(unsubAuth);
-
-    // 2. Test Connection and Setup Real-time Firestore Sync
-    const setupFirestore = async () => {
+    const setupFirestoreForUser = async (user: FirebaseUser) => {
       try {
         const isConnected = await testConnection();
         setIsFirestoreConnected(isConnected);
@@ -361,7 +349,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (isConnected) {
           await seedInitialDataIfEmpty();
 
-          // Attach live Firestore listeners for relational data
+          // Attach live Firestore listeners for authenticated session
           const unsubApts = subscribeToAppointments(remoteApts => {
             if (remoteApts && remoteApts.length > 0) {
               setAppointments(remoteApts);
@@ -416,93 +404,327 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     };
 
-    setupFirestore();
+    // 1. Listen to Firebase Auth (Real Identity & Session State)
+    const unsubAuth = onAuthStateChanged(auth, async (user) => {
+      // Clean up previous listeners
+      unsubs.forEach(u => u());
+      unsubs = [];
+
+      if (user) {
+        setFirebaseUser(user);
+
+        try {
+          // Retrieve cryptographically verified token claims and server-certified role
+          const tokenClaims = await getVerifiedTokenClaims(user);
+          const roleRes = await apiService.verifyRole(
+            user.email || '',
+            user.uid,
+            user.displayName || undefined,
+            tokenClaims.token
+          );
+
+          const verifiedRole: UserRole = (roleRes.role as UserRole) || 'patient';
+          const profile: UserProfile = {
+            id: user.uid,
+            name: user.displayName || roleRes.profile?.name || user.email?.split('@')[0] || 'CareOps User',
+            email: user.email || 'user@example.com',
+            role: verifiedRole,
+            avatar: user.photoURL || undefined,
+            title: roleRes.profile?.title || (verifiedRole === 'admin' ? 'Chief Operations & Compliance Officer' : 'Policyholder / Patient'),
+            department: roleRes.profile?.department,
+            patientId: roleRes.profile?.patientId || (verifiedRole === 'patient' ? 'PAT-1001' : undefined),
+            providerId: roleRes.profile?.providerId,
+            twoFactorEnabled: roleRes.profile?.twoFactorEnabled ?? true,
+            lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }),
+            notificationPreferences: {
+              emailAlerts: true,
+              smsAlerts: true,
+              clinicalEscalations: true,
+              claimStatusUpdates: true,
+              voiceSummaries: true
+            }
+          };
+
+          setCurrentUser(profile);
+          setIsAuthenticated(true);
+          apiService.setAuth(user.uid, verifiedRole, tokenClaims.token);
+          syncUserProfileToFirestore(profile);
+          setupFirestoreForUser(user);
+        } catch (e) {
+          console.error('Session role verification error:', e);
+          setIsAuthenticated(false);
+          apiService.setAuth('', 'unauthenticated');
+        }
+      } else {
+        setFirebaseUser(null);
+        setIsAuthenticated(false);
+        setIsFirestoreConnected(false);
+        apiService.setAuth('', 'unauthenticated');
+      }
+    });
 
     return () => {
+      unsubAuth();
       unsubs.forEach(u => u());
     };
   }, []);
 
-  // Google Sign-In via Firebase
+  // Real Google Sign-In via Firebase Auth with Server-Verified Claims
   const loginWithGoogle = async (): Promise<boolean> => {
     try {
       const user = await signInWithGoogle();
       if (user) {
         setFirebaseUser(user);
-        const isAdmin = user.email === 'bhattiroshaan248@gmail.com' || (user.email && user.email.includes('admin'));
-        const role: UserRole = isAdmin ? 'admin' : 'patient';
 
+        // Fetch cryptographically verified token claims and server-side authorization
+        const tokenClaims = await getVerifiedTokenClaims(user);
+        const roleRes = await apiService.verifyRole(
+          user.email || '',
+          user.uid,
+          user.displayName || undefined,
+          tokenClaims.token
+        );
+
+        const verifiedRole: UserRole = (roleRes.role as UserRole) || 'patient';
         const profile: UserProfile = {
           id: user.uid,
-          name: user.displayName || user.email?.split('@')[0] || 'CareOps User',
+          name: user.displayName || roleRes.profile?.name || user.email?.split('@')[0] || 'CareOps User',
           email: user.email || 'user@example.com',
-          role,
+          role: verifiedRole,
           avatar: user.photoURL || undefined,
-          title: isAdmin ? 'Chief Operating Officer & Admin' : 'Insured Patient',
-          department: isAdmin ? 'Executive Operations' : undefined,
-          patientId: role === 'patient' ? 'PAT-1001' : undefined,
-          lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }),
-          twoFactorEnabled: true
+          title: roleRes.profile?.title || (verifiedRole === 'admin' ? 'Chief Operations & Compliance Officer' : 'Policyholder / Patient'),
+          department: roleRes.profile?.department,
+          patientId: roleRes.profile?.patientId || (verifiedRole === 'patient' ? 'PAT-1001' : undefined),
+          providerId: roleRes.profile?.providerId,
+          twoFactorEnabled: true,
+          lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })
         };
 
         setCurrentUser(profile);
         setIsAuthenticated(true);
         setIsAuthModalOpen(false);
+        apiService.setAuth(user.uid, verifiedRole, tokenClaims.token);
         await syncUserProfileToFirestore(profile);
-        addToast('success', 'Google Authentication Verified', `Signed in as ${profile.name} (${profile.email}) with secure Firebase token.`);
+
+        addToast(
+          'success',
+          'Google SSO Authenticated',
+          `Verified identity: ${profile.name} [Role: ${verifiedRole.toUpperCase()} · Certified by Server Authority]`
+        );
         return true;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Google sign-in error:', error);
-      addToast('error', 'Google Sign-In Failed', error instanceof Error ? error.message : 'Authentication could not be completed.');
+      const msg = error?.code === 'auth/popup-closed-by-user'
+        ? 'Sign-in cancelled by user.'
+        : error?.message || 'Authentication could not be completed.';
+      addToast('error', 'Google Sign-In Failed', msg);
     }
     return false;
   };
 
-  const login = async (email: string, _password?: string, forcedRole?: UserRole): Promise<{ success: boolean; message?: string }> => {
-    const existing = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (existing) {
-      const updated = {
-        ...existing,
-        role: forcedRole || existing.role,
-        lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })
-      };
-      setCurrentUser(updated);
-      setIsAuthenticated(true);
-      setIsAuthModalOpen(false);
-
-      if (updated.patientId) {
-        setActivePatientIdState(updated.patientId);
-      }
-
-      syncUserProfileToFirestore(updated);
-      addToast('success', 'Session Authenticated', `Welcome back, ${updated.name} (${updated.role.toUpperCase()})`);
-      return { success: true };
+  // Real Firebase Email & Password Authentication (Strict Credentials Required)
+  const login = async (email: string, password?: string): Promise<{ success: boolean; message?: string }> => {
+    if (!email || !email.trim()) {
+      return { success: false, message: 'Please provide a valid registered email address.' };
+    }
+    if (!password || !password.trim()) {
+      return { success: false, message: 'Password is required to authenticate. Anonymous access is strictly prohibited.' };
     }
 
-    const defaultRole: UserRole = forcedRole || (email.includes('doc') || email.includes('md') ? 'provider' : email.includes('admin') ? 'admin' : 'patient');
-    const newUser: UserProfile = {
-      id: `USR-${Date.now().toString().slice(-4)}`,
-      name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-      email: email.toLowerCase(),
-      role: defaultRole,
-      title: defaultRole === 'provider' ? 'Attending Physician' : defaultRole === 'admin' ? 'Healthcare System Administrator' : 'Policyholder',
-      department: defaultRole === 'patient' ? undefined : 'Clinical Operations',
-      patientId: defaultRole === 'patient' ? 'PAT-1001' : undefined,
-      lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }),
-      twoFactorEnabled: true
-    };
+    try {
+      // 1. Attempt Real Firebase Email/Password Sign-In
+      const user = await signInWithEmail(email.trim(), password);
+      setFirebaseUser(user);
 
-    setUsers(prev => [newUser, ...prev]);
-    setCurrentUser(newUser);
-    setIsAuthenticated(true);
-    setIsAuthModalOpen(false);
-    syncUserProfileToFirestore(newUser);
+      // 2. Fetch server-verified custom claims and authorized role
+      const tokenClaims = await getVerifiedTokenClaims(user);
+      const roleRes = await apiService.verifyRole(
+        user.email || '',
+        user.uid,
+        user.displayName || undefined,
+        tokenClaims.token
+      );
 
-    addToast('success', 'Session Created', `Signed in as ${newUser.name}`);
-    return { success: true };
+      const verifiedRole: UserRole = (roleRes.role as UserRole) || 'patient';
+      const profile: UserProfile = {
+        id: user.uid,
+        name: user.displayName || roleRes.profile?.name || user.email?.split('@')[0] || 'CareOps User',
+        email: user.email || email.trim(),
+        role: verifiedRole,
+        avatar: user.photoURL || undefined,
+        title: roleRes.profile?.title || (verifiedRole === 'admin' ? 'Chief Operations & Compliance Officer' : 'Policyholder / Patient'),
+        department: roleRes.profile?.department,
+        patientId: roleRes.profile?.patientId || (verifiedRole === 'patient' ? 'PAT-1001' : undefined),
+        providerId: roleRes.profile?.providerId,
+        twoFactorEnabled: true,
+        lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })
+      };
+
+      setCurrentUser(profile);
+      setIsAuthenticated(true);
+      setIsAuthModalOpen(false);
+      apiService.setAuth(user.uid, verifiedRole, tokenClaims.token);
+      await syncUserProfileToFirestore(profile);
+
+      addToast(
+        'success',
+        'Credentials Authenticated',
+        `Welcome, ${profile.name}! [Role: ${verifiedRole.toUpperCase()} · Certified by Server Authority]`
+      );
+      return { success: true };
+    } catch (err: any) {
+      console.warn('Firebase Email Sign-In failed or fallback required:', err);
+
+      // Handle specific Firebase security errors
+      if (err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential') {
+        const errorMsg = 'Invalid credentials. Password did not match the registered account.';
+        addToast('error', 'Authentication Failed', errorMsg);
+        return { success: false, message: errorMsg };
+      }
+      if (err?.code === 'auth/user-not-found') {
+        const errorMsg = 'No account found with this email. Please register or check for typos.';
+        addToast('error', 'Account Not Found', errorMsg);
+        return { success: false, message: errorMsg };
+      }
+      if (err?.code === 'auth/too-many-requests') {
+        const errorMsg = 'Account access temporarily locked due to repeated failed login attempts. Try again later.';
+        addToast('error', 'Access Throttled', errorMsg);
+        return { success: false, message: errorMsg };
+      }
+
+      // Check if hospital staff credentials are provided (for enterprise SSO / certified staff)
+      const hospitalRes = await apiService.hospitalSSO({
+        provider: 'CareOps HealthKey Enterprise IdP',
+        email: email.trim(),
+        password: password.trim()
+      });
+
+      if (hospitalRes?.success && hospitalRes?.user) {
+        const staff = hospitalRes.user;
+        const profile: UserProfile = {
+          id: staff.id,
+          name: staff.name,
+          email: staff.email,
+          role: staff.role,
+          title: staff.title,
+          department: staff.department,
+          providerId: staff.providerId,
+          patientId: staff.patientId,
+          twoFactorEnabled: true,
+          lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })
+        };
+
+        setCurrentUser(profile);
+        setIsAuthenticated(true);
+        setIsAuthModalOpen(false);
+        apiService.setAuth(staff.id, staff.role, hospitalRes.token);
+        await syncUserProfileToFirestore(profile);
+
+        addToast(
+          'success',
+          'Hospital Credentials Verified',
+          `Authenticated: ${profile.name} [Role: ${profile.role.toUpperCase()} · MFA Verified]`
+        );
+        return { success: true };
+      }
+
+      const failureMessage = hospitalRes?.error || err?.message || 'Authentication failed. Please verify credentials.';
+      addToast('error', 'Sign-In Denied', failureMessage);
+      return { success: false, message: failureMessage };
+    }
   };
 
+  // Enterprise Hospital SSO Authentication with MFA Handshake
+  const loginWithHospitalSSO = async (
+    provider: string,
+    email: string,
+    password?: string,
+    mfaCode?: string
+  ): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const res = await apiService.hospitalSSO({ provider, email, password, mfaCode });
+      if (res?.success && res?.user) {
+        const staff = res.user;
+        const profile: UserProfile = {
+          id: staff.id,
+          name: staff.name,
+          email: staff.email,
+          role: staff.role,
+          title: staff.title,
+          department: staff.department,
+          providerId: staff.providerId,
+          patientId: staff.patientId,
+          twoFactorEnabled: true,
+          lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })
+        };
+
+        setCurrentUser(profile);
+        setIsAuthenticated(true);
+        setIsAuthModalOpen(false);
+        apiService.setAuth(staff.id, staff.role, res.token);
+        await syncUserProfileToFirestore(profile);
+
+        addToast(
+          'success',
+          'Hospital SSO Handshake Complete',
+          `Verified Identity via ${provider}: ${staff.name} (${staff.role.toUpperCase()})`
+        );
+        return { success: true };
+      }
+      return { success: false, message: res?.error || 'Hospital SSO handshake was rejected by Identity Provider.' };
+    } catch (e: any) {
+      return { success: false, message: e?.message || 'Hospital SSO service unavailable.' };
+    }
+  };
+
+  // Verified Role Switching (Enforces credential verification and HIPAA audit logging)
+  const switchRoleWithCredentials = async (
+    targetRole: UserRole,
+    staffEmail: string,
+    mfaCode?: string
+  ): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const res = await apiService.switchRole({ targetRole, staffEmail, mfaCode });
+      if (res?.success && res?.user) {
+        const user = res.user;
+        const updatedProfile: UserProfile = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          title: user.title,
+          department: user.department,
+          providerId: user.providerId,
+          patientId: user.patientId,
+          twoFactorEnabled: true,
+          lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })
+        };
+
+        setCurrentUser(updatedProfile);
+        apiService.setAuth(user.id, user.role, res.token);
+        addToast('info', 'Certified Role Active', `Operating as ${user.name} [Verified Role: ${user.role.toUpperCase()}]`);
+        return { success: true };
+      }
+      return { success: false, message: res?.error || 'Role authorization denied by hospital security policy.' };
+    } catch (e: any) {
+      return { success: false, message: e?.message || 'Role switch failed.' };
+    }
+  };
+
+  // Real Password Reset Request via Firebase Auth
+  const resetPassword = async (email: string): Promise<{ success: boolean; message?: string }> => {
+    try {
+      await sendPasswordReset(email);
+      addToast('success', 'Reset Link Dispatched', `Password reset instructions sent to ${email}.`);
+      return { success: true };
+    } catch (e: any) {
+      addToast('error', 'Reset Failed', e?.message || 'Could not send reset email.');
+      return { success: false, message: e?.message };
+    }
+  };
+
+  // Real Account Registration via Firebase Auth
   const signup = async (data: {
     name: string;
     email: string;
@@ -519,43 +741,65 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!data.name.trim() || !data.email.trim()) {
       return { success: false, message: 'Please provide full name and valid email.' };
     }
-
-    const newUser: UserProfile = {
-      id: `USR-${Date.now().toString().slice(-5)}`,
-      name: data.name.trim(),
-      email: data.email.trim().toLowerCase(),
-      role: data.role,
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      title: data.title || (data.role === 'provider' ? 'Medical Practitioner' : data.role === 'patient' ? 'Insured Patient' : 'Healthcare Operations Staff'),
-      department: data.department || (data.role === 'patient' ? undefined : 'Clinical Administration'),
-      patientId: data.patientId || (data.role === 'patient' ? 'PAT-1001' : undefined),
-      providerId: data.providerId,
-      npiNumber: data.npiNumber,
-      memberId: data.memberId,
-      phone: data.phone || '(555) 789-0123',
-      twoFactorEnabled: true,
-      lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }),
-      notificationPreferences: {
-        emailAlerts: true,
-        smsAlerts: true,
-        clinicalEscalations: true,
-        claimStatusUpdates: true,
-        voiceSummaries: true
-      }
-    };
-
-    setUsers(prev => [newUser, ...prev]);
-    setCurrentUser(newUser);
-    setIsAuthenticated(true);
-    setIsAuthModalOpen(false);
-
-    if (newUser.patientId) {
-      setActivePatientIdState(newUser.patientId);
+    if (!data.password || data.password.length < 6) {
+      return { success: false, message: 'Password must be at least 6 characters long.' };
     }
 
-    syncUserProfileToFirestore(newUser);
-    addToast('success', 'Account Registered & Activated', `Welcome to CareOps Healthcare Platform, ${newUser.name}!`);
-    return { success: true };
+    try {
+      // 1. Create Real Account in Firebase Auth
+      const user = await signUpWithEmail(data.email.trim(), data.password, data.name.trim());
+      setFirebaseUser(user);
+
+      // 2. Resolve Server-Certified Role (Default is strictly Patient for public registration)
+      const roleRes = await apiService.verifyRole(user.email || data.email, user.uid, data.name.trim());
+      const assignedRole: UserRole = (roleRes.role as UserRole) || 'patient';
+
+      const newUser: UserProfile = {
+        id: user.uid,
+        name: data.name.trim(),
+        email: data.email.trim().toLowerCase(),
+        role: assignedRole,
+        title: data.title || (assignedRole === 'patient' ? 'Insured Patient' : 'Healthcare Staff'),
+        department: data.department,
+        patientId: data.patientId || (assignedRole === 'patient' ? 'PAT-1001' : undefined),
+        providerId: data.providerId,
+        npiNumber: data.npiNumber,
+        memberId: data.memberId,
+        phone: data.phone || '(555) 789-0123',
+        twoFactorEnabled: true,
+        lastLogin: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }),
+        notificationPreferences: {
+          emailAlerts: true,
+          smsAlerts: true,
+          clinicalEscalations: true,
+          claimStatusUpdates: true,
+          voiceSummaries: true
+        }
+      };
+
+      setUsers(prev => [newUser, ...prev]);
+      setCurrentUser(newUser);
+      setIsAuthenticated(true);
+      setIsAuthModalOpen(false);
+      apiService.setAuth(user.uid, assignedRole);
+      syncUserProfileToFirestore(newUser);
+
+      addToast(
+        'success',
+        'Account Registered in Firebase',
+        `Welcome to CareOps, ${newUser.name}! [Role: ${assignedRole.toUpperCase()}]`
+      );
+      return { success: true };
+    } catch (err: any) {
+      console.error('Firebase registration error:', err);
+      const msg = err?.code === 'auth/email-already-in-use'
+        ? 'An account with this email already exists. Please sign in.'
+        : err?.code === 'auth/weak-password'
+        ? 'Password is too weak. Please use at least 6 characters with mixed letters and numbers.'
+        : err?.message || 'Registration failed.';
+      addToast('error', 'Registration Failed', msg);
+      return { success: false, message: msg };
+    }
   };
 
   const logout = async () => {
@@ -941,6 +1185,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isFirestoreConnected,
         login,
         loginWithGoogle,
+        loginWithHospitalSSO,
+        switchRoleWithCredentials,
+        resetPassword,
         signup,
         logout,
         updateUserProfile,

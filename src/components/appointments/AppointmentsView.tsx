@@ -143,8 +143,8 @@ export const AppointmentsView: React.FC = () => {
       {/* Clean Appointments Table */}
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-500 font-medium text-[11px]">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-500 font-semibold text-xs uppercase tracking-wider">
               <tr>
                 <th className="px-4 py-3">Date & Time</th>
                 <th className="px-4 py-3">Patient</th>
@@ -159,26 +159,26 @@ export const AppointmentsView: React.FC = () => {
                 <tr key={appt.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="px-4 py-3.5">
                     <div className="font-semibold text-slate-900">{appt.date}</div>
-                    <div className="text-[11px] text-slate-500">{appt.time}</div>
+                    <div className="text-xs text-slate-500">{appt.time}</div>
                   </td>
 
                   <td className="px-4 py-3.5">
                     <div className="font-semibold text-slate-900">{appt.patientName}</div>
-                    <div className="text-[11px] text-slate-400 font-mono">{appt.patientId}</div>
+                    <div className="text-xs text-slate-400 font-mono">{appt.patientId}</div>
                   </td>
 
                   <td className="px-4 py-3.5">
                     <div className="text-slate-800 font-medium">{appt.providerName}</div>
-                    <div className="text-[11px] text-slate-500">{appt.department}</div>
+                    <div className="text-xs text-slate-500">{appt.department}</div>
                   </td>
 
                   <td className="px-4 py-3.5">
                     <div className="text-slate-800">{appt.type}</div>
-                    <div className="text-[11px] text-slate-400 truncate max-w-[160px]">{appt.reasonForVisit || 'Routine follow-up'}</div>
+                    <div className="text-xs text-slate-400 truncate max-w-[160px]">{appt.reasonForVisit || 'Routine follow-up'}</div>
                   </td>
 
                   <td className="px-4 py-3.5">
-                    <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded ${
                       appt.status === 'Confirmed'
                         ? 'bg-emerald-50 text-emerald-800 border border-emerald-100'
                         : appt.status === 'Rescheduled'

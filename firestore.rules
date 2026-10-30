@@ -2,12 +2,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Default deny all access unless explicitly allowed below
+    // Global Safety Net: Default-deny all unauthenticated and unauthorized access
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Helper functions
+    // --- Helper Functions ---
     function isSignedIn() {
       return request.auth != null;
     }
@@ -28,103 +28,241 @@ service cloud.firestore {
       return resource.data;
     }
 
+    // Role & Claims-based access control (RBAC & ABAC)
+    // Custom claims or trusted admin/staff document lookup (no hardcoded credentials)
+    function hasRoleClaim(role) {
+      return isSignedIn() && (
+        request.auth.token.role == role ||
+        (role == 'admin' && request.auth.token.admin == true)
+      );
+    }
+
     function isAdmin() {
       return isSignedIn() && (
-        request.auth.token.email == 'bhattiroshaan248@gmail.com' ||
+        hasRoleClaim('admin') ||
         exists(/databases/$(database)/documents/admins/$(request.auth.uid))
       );
     }
 
-    // Connection validation ping document
-    match /test/{testId} {
-      allow read, write: if true;
+    function isStaff() {
+      return isSignedIn() && (
+        isAdmin() ||
+        hasRoleClaim('provider') ||
+        hasRoleClaim('billing') ||
+        hasRoleClaim('claims') ||
+        hasRoleClaim('ops_manager') ||
+        exists(/databases/$(database)/documents/staff/$(request.auth.uid))
+      );
     }
 
-    // Admin records
+    function isBillingStaff() {
+      return isSignedIn() && (
+        isAdmin() ||
+        hasRoleClaim('billing') ||
+        hasRoleClaim('ops_manager')
+      );
+    }
+
+    function isClaimsStaff() {
+      return isSignedIn() && (
+        isAdmin() ||
+        hasRoleClaim('claims') ||
+        hasRoleClaim('ops_manager')
+      );
+    }
+
+    // Check if the authenticated user is the patient associated with the resource
+    function isPatientOwner(patientId) {
+      return isSignedIn() && (
+        request.auth.uid == patientId ||
+        request.auth.token.patientId == patientId
+      );
+    }
+
+    // --- Validation Blueprints (Anti-Update-Gap) ---
+    function isValidUser(data) {
+      return data.id is string && isValidId(data.id) &&
+        data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+        data.email is string && data.email.size() <= 200 &&
+        (!('role' in data) || data.role in ['patient', 'provider', 'billing', 'claims', 'admin', 'ops_manager']);
+    }
+
+    function isValidPatient(data) {
+      return data.id is string && isValidId(data.id) &&
+        data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+        (!('outstandingBalance' in data) || data.outstandingBalance is number);
+    }
+
+    function isValidAppointment(data) {
+      return data.id is string && isValidId(data.id) &&
+        data.patientId is string && isValidId(data.patientId) &&
+        data.providerId is string && isValidId(data.providerId) &&
+        data.date is string && data.date.size() <= 32 &&
+        data.status is string && data.status.size() <= 64;
+    }
+
+    function isValidClaim(data) {
+      return data.id is string && isValidId(data.id) &&
+        data.patientId is string && isValidId(data.patientId) &&
+        data.payerName is string && data.payerName.size() <= 200 &&
+        data.status is string && data.status.size() <= 64 &&
+        (!('submittedAmount' in data) || data.submittedAmount is number);
+    }
+
+    function isValidInvoice(data) {
+      return data.id is string && isValidId(data.id) &&
+        data.patientId is string && isValidId(data.patientId) &&
+        data.status is string && data.status.size() <= 64 &&
+        data.totalAmount is number && data.totalAmount >= 0;
+    }
+
+    function isValidPayment(data) {
+      return data.id is string && isValidId(data.id) &&
+        data.invoiceId is string && isValidId(data.invoiceId) &&
+        data.patientId is string && isValidId(data.patientId) &&
+        data.amount is number && data.amount > 0 &&
+        data.status is string && data.status.size() <= 64;
+    }
+
+    function isValidSupportTicket(data) {
+      return data.id is string && isValidId(data.id) &&
+        data.subject is string && data.subject.size() > 0 && data.subject.size() <= 300 &&
+        data.status is string && data.status.size() <= 64 &&
+        data.priority is string && data.priority.size() <= 32;
+    }
+
+    function isValidDocument(data) {
+      return data.id is string && isValidId(data.id) &&
+        data.title is string && data.title.size() > 0 && data.title.size() <= 300 &&
+        (!('patientId' in data) || (data.patientId is string && isValidId(data.patientId)));
+    }
+
+    function isValidAuditLog(data) {
+      return data.id is string && isValidId(data.id) &&
+        data.timestamp is string && data.timestamp.size() <= 64 &&
+        data.userId is string && data.userId.size() <= 128 &&
+        data.action is string && data.action.size() <= 200 &&
+        data.resourceType is string && data.resourceType.size() <= 128 &&
+        data.result is string && data.result.size() <= 64;
+    }
+
+    // --- Collections ---
+
+    // Admin authorization records
     match /admins/{adminId} {
-      allow read: if isSignedIn();
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Staff authorization records
+    match /staff/{staffId} {
+      allow read: if isStaff();
       allow write: if isAdmin();
     }
 
     // Users Collection
     match /users/{userId} {
-      allow read: if true;
-      allow create: if incoming().id is string &&
-        incoming().name is string && incoming().name.size() <= 200 &&
-        incoming().email is string && incoming().email.size() <= 200;
-      allow update: if incoming().id == existing().id;
+      allow read: if isOwner(userId) || isStaff();
+      allow create: if isOwner(userId) && isValidUser(incoming()) && (
+        !('role' in incoming()) || incoming().role != 'admin' || isAdmin()
+      );
+      allow update: if (isOwner(userId) || isAdmin()) &&
+        isValidUser(incoming()) &&
+        incoming().id == existing().id &&
+        (isAdmin() || !('role' in incoming()) || incoming().role == existing().role);
       allow delete: if isAdmin();
     }
 
-    // Patients Collection
+    // Patients Collection (Demographic and PHI records)
     match /patients/{patientId} {
-      allow read: if true;
-      allow create: if incoming().id is string &&
-        incoming().name is string && incoming().name.size() <= 200;
-      allow update: if incoming().id == existing().id;
+      allow read: if isStaff() || isPatientOwner(patientId) || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isStaff() && isValidPatient(incoming());
+      allow update: if isStaff() && isValidPatient(incoming()) && incoming().id == existing().id;
       allow delete: if isAdmin();
     }
 
     // Appointments Collection
     match /appointments/{appointmentId} {
-      allow read: if true;
-      allow create: if incoming().patientId is string &&
-        incoming().providerId is string &&
-        incoming().date is string;
-      allow update: if incoming().patientId == existing().patientId;
-      allow delete: if true;
+      allow read: if isStaff() || isPatientOwner(resource.data.patientId) || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && isValidAppointment(incoming()) && (
+        isStaff() ||
+        incoming().patientId == request.auth.uid ||
+        incoming().patientId == request.auth.token.patientId ||
+        incoming().userId == request.auth.uid
+      );
+      allow update: if isSignedIn() && isValidAppointment(incoming()) &&
+        incoming().patientId == existing().patientId && (
+          isStaff() ||
+          resource.data.patientId == request.auth.uid ||
+          resource.data.patientId == request.auth.token.patientId ||
+          resource.data.userId == request.auth.uid
+        );
+      allow delete: if isAdmin() || isStaff();
     }
 
     // Claims Collection
     match /claims/{claimId} {
-      allow read: if true;
-      allow create: if incoming().patientId is string &&
-        incoming().payerName is string;
-      allow update: if incoming().patientId == existing().patientId;
+      allow read: if isStaff() || isPatientOwner(resource.data.patientId);
+      allow create: if isClaimsStaff() && isValidClaim(incoming());
+      allow update: if isClaimsStaff() && isValidClaim(incoming()) && incoming().patientId == existing().patientId;
       allow delete: if isAdmin();
     }
 
     // Invoices Collection
     match /invoices/{invoiceId} {
-      allow read: if true;
-      allow create: if incoming().patientId is string &&
-        incoming().totalAmount is number;
-      allow update: if incoming().patientId == existing().patientId;
+      allow read: if isBillingStaff() || isPatientOwner(resource.data.patientId);
+      allow create: if isBillingStaff() && isValidInvoice(incoming());
+      allow update: if isValidInvoice(incoming()) && incoming().patientId == existing().patientId && (
+        isBillingStaff() ||
+        (isPatientOwner(resource.data.patientId) && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'balanceDue']))
+      );
       allow delete: if isAdmin();
     }
 
-    // Payments Collection (Immutable transaction ledger)
+    // Payments Collection (Immutable financial transactions)
     match /payments/{paymentId} {
-      allow read: if true;
-      allow create: if incoming().patientId is string &&
-        incoming().invoiceId is string &&
-        incoming().amount is number;
-      allow update: if false; // Tamper-evident immutable ledger
+      allow read: if isBillingStaff() || isPatientOwner(resource.data.patientId);
+      allow create: if isSignedIn() && isValidPayment(incoming()) && (
+        isBillingStaff() ||
+        isPatientOwner(incoming().patientId)
+      );
+      allow update: if false; // Immutable financial ledger
       allow delete: if isAdmin();
     }
 
     // Support & Escalation Tickets Collection
     match /supportTickets/{ticketId} {
-      allow read: if true;
-      allow create: if incoming().subject is string && incoming().subject.size() <= 300;
-      allow update: if true;
+      allow read: if isStaff() || isPatientOwner(resource.data.patientId) || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && isValidSupportTicket(incoming()) && (
+        isStaff() ||
+        incoming().userId == request.auth.uid ||
+        isPatientOwner(incoming().patientId)
+      );
+      allow update: if isValidSupportTicket(incoming()) && (
+        isStaff() ||
+        (isSignedIn() && resource.data.userId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['description', 'status', 'updatedAt']))
+      );
       allow delete: if isAdmin();
     }
 
     // Clinical Documents Collection
     match /documents/{documentId} {
-      allow read: if true;
-      allow create, update: if true;
+      allow read: if isStaff() || isPatientOwner(resource.data.patientId);
+      allow create: if isSignedIn() && isValidDocument(incoming()) && (
+        isStaff() ||
+        isPatientOwner(incoming().patientId) ||
+        incoming().userId == request.auth.uid
+      );
+      allow update: if isStaff() && isValidDocument(incoming()) && incoming().patientId == existing().patientId;
       allow delete: if isAdmin();
     }
 
     // Audit Logs Collection (Tamper-evident, Append-only for HIPAA compliance)
     match /auditLogs/{auditId} {
-      allow read: if true;
-      allow create: if incoming().action is string &&
-        incoming().timestamp is string;
-      allow update: if false; // Immutable audit log
-      allow delete: if false; // Immutable audit log
+      allow read: if isAdmin() || hasRoleClaim('ops_manager');
+      allow create: if isSignedIn() && isValidAuditLog(incoming());
+      allow update: if false; // Immutable
+      allow delete: if false; // Immutable
     }
   }
 }

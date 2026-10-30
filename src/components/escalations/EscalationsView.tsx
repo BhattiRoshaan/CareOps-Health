@@ -49,13 +49,13 @@ export const EscalationsView: React.FC = () => {
   const getPriorityBadge = (p: SupportTicket['priority']) => {
     switch (p) {
       case 'Urgent':
-        return <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300">Urgent</span>;
+        return <span className="px-2 py-0.5 rounded text-xs font-extrabold uppercase bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300">Urgent</span>;
       case 'High':
-        return <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">High</span>;
+        return <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">High</span>;
       case 'Medium':
-        return <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">Medium</span>;
+        return <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">Medium</span>;
       default:
-        return <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700">Low</span>;
+        return <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">Low</span>;
     }
   };
 
@@ -117,10 +117,10 @@ export const EscalationsView: React.FC = () => {
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-bold font-mono text-slate-900 dark:text-white">{t.id}</span>
                       {getPriorityBadge(t.priority)}
-                      <span className="text-[11px] font-semibold text-slate-500">{t.department}</span>
+                      <span className="text-xs font-semibold text-slate-500">{t.department}</span>
                     </div>
                     <h3 className="text-xs font-bold text-slate-900 dark:text-white">{t.subject}</h3>
-                    <div className="text-[11px] text-slate-500 mt-1">
+                    <div className="text-xs text-slate-500 mt-1">
                       Patient: <strong>{t.patientName}</strong> • Assigned: <strong>{t.assignedStaff || 'Unassigned'}</strong>
                     </div>
                   </div>
@@ -156,24 +156,24 @@ export const EscalationsView: React.FC = () => {
                   {getPriorityBadge(selectedTicket.priority)}
                 </div>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white mt-1">{selectedTicket.subject}</h3>
-                <div className="text-[11px] text-slate-400 mt-0.5">{selectedTicket.createdAt}</div>
+                <div className="text-xs text-slate-400 mt-0.5">{selectedTicket.createdAt}</div>
               </div>
 
               <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 space-y-1.5">
-                <div className="text-[10px] font-bold text-slate-400 uppercase">Handoff Trigger Reason</div>
+                <div className="text-xs font-bold text-slate-400 uppercase">Handoff Trigger Reason</div>
                 <div className="text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
                   {selectedTicket.reasonForEscalation}
                 </div>
               </div>
 
               {selectedTicket.conversationSnippet && (
-                <div className="p-3.5 rounded-xl bg-slate-950 text-slate-200 font-mono text-[11px] border border-slate-800">
-                  <div className="text-[10px] text-teal-400 font-bold uppercase mb-1">Preserved Conversation Context:</div>
+                <div className="p-3.5 rounded-xl bg-slate-950 text-slate-200 font-mono text-xs border border-slate-800">
+                  <div className="text-xs text-teal-400 font-bold uppercase mb-1">Preserved Conversation Context:</div>
                   <div>{selectedTicket.conversationSnippet}</div>
                 </div>
               )}
 
-              <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] space-y-1">
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs space-y-1">
                 <div className="flex justify-between text-slate-500">
                   <span>Assigned Specialist:</span>
                   <span className="font-bold text-slate-900 dark:text-white">{selectedTicket.assignedStaff}</span>

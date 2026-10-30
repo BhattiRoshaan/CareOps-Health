@@ -63,7 +63,7 @@ export const SettingsView: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">Clinical Interface & Visual Ergonomics</h2>
-              <p className="text-[11px] text-slate-500">Eye-soothing healthcare light palette with WCAG AA compliance</p>
+              <p className="text-xs text-slate-500">Eye-soothing healthcare light palette with WCAG AA compliance</p>
             </div>
           </div>
 
@@ -74,12 +74,12 @@ export const SettingsView: React.FC = () => {
                   <HeartPulse className="w-4 h-4 text-teal-600" />
                   Healthcare Light Palette
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-200">
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-200">
                   Active (Default)
                 </span>
               </div>
-              <p className="text-[11px] text-slate-600 leading-relaxed">
-                Engineered with clinical whites (<code className="font-mono text-[10px] bg-white px-1 py-0.5 rounded border border-slate-200">#F8FAFC</code>), soft medical slate (<code className="font-mono text-[10px] bg-white px-1 py-0.5 rounded border border-slate-200">#1E293B</code>), and calming hospital teal (<code className="font-mono text-[10px] bg-white px-1 py-0.5 rounded border border-slate-200">#0D9488</code>) to eliminate optical fatigue during long clinical shifts.
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Engineered with clinical whites (<code className="font-mono text-xs bg-white px-1 py-0.5 rounded border border-slate-200">#F8FAFC</code>), soft medical slate (<code className="font-mono text-xs bg-white px-1 py-0.5 rounded border border-slate-200">#1E293B</code>), and calming hospital teal (<code className="font-mono text-xs bg-white px-1 py-0.5 rounded border border-slate-200">#0D9488</code>) to eliminate optical fatigue during long clinical shifts.
               </p>
             </div>
 
@@ -88,7 +88,7 @@ export const SettingsView: React.FC = () => {
                 <Eye className="w-4 h-4 text-slate-600" />
                 <div>
                   <div className="text-xs font-semibold text-slate-800">High-Legibility Clinical Mode</div>
-                  <div className="text-[10px] text-slate-500">Enhanced border sharpness for charts & tables</div>
+                  <div className="text-xs text-slate-500">Enhanced border sharpness for charts & tables</div>
                 </div>
               </div>
               <button
@@ -119,7 +119,7 @@ export const SettingsView: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">HL7 FHIR R4 & EHR Integration</h2>
-              <p className="text-[11px] text-slate-500">Bi-directional patient records & clinical orders synchronization</p>
+              <p className="text-xs text-slate-500">Bi-directional patient records & clinical orders synchronization</p>
             </div>
           </div>
 
@@ -144,16 +144,16 @@ export const SettingsView: React.FC = () => {
                 type="text"
                 value={fhirEndpoint}
                 onChange={(e) => setFhirEndpoint(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono text-[11px] text-slate-900 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
 
-            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900 flex items-center justify-between">
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between">
               <span className="flex items-center gap-1.5 font-semibold">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 FHIR OAuth2 Token Active
               </span>
-              <span className="font-mono text-[10px] text-emerald-700">Expires in 7h 42m</span>
+              <span className="font-mono text-xs text-emerald-700">Expires in 7h 42m</span>
             </div>
           </div>
         </div>
@@ -166,7 +166,7 @@ export const SettingsView: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">EDI Clearinghouse Gateway</h2>
-              <p className="text-[11px] text-slate-500">Real-time 270/271, 837 claims submission & 835 remittances</p>
+              <p className="text-xs text-slate-500">Real-time 270/271, 837 claims submission & 835 remittances</p>
             </div>
           </div>
 
@@ -194,11 +194,11 @@ export const SettingsView: React.FC = () => {
               <input
                 type="text"
                 defaultValue="TP-CAREOPS-99824"
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono text-[11px] text-slate-900 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-teal-500"
               />
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-600 space-y-1">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 space-y-1">
               <div className="flex justify-between">
                 <span>EDI 270/271 Response Latency:</span>
                 <strong className="text-slate-900 font-mono">180ms</strong>
@@ -219,7 +219,7 @@ export const SettingsView: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">Gemini AI Model & Orchestrator</h2>
-              <p className="text-[11px] text-slate-500">Google Gemini 3.7 Flash with Server-Side Guardrails</p>
+              <p className="text-xs text-slate-500">Google Gemini 3.7 Flash with Server-Side Guardrails</p>
             </div>
           </div>
 
@@ -238,7 +238,7 @@ export const SettingsView: React.FC = () => {
               </select>
             </div>
 
-            <div className="p-3 rounded-xl bg-teal-50 border border-teal-200 text-[11px] space-y-1">
+            <div className="p-3 rounded-xl bg-teal-50 border border-teal-200 text-xs space-y-1">
               <div className="font-bold text-teal-900 flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-teal-700" />
                 Clinical Emergency Hard-Coded Interceptor
@@ -258,22 +258,22 @@ export const SettingsView: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-bold text-slate-900">HIPAA & SOC-2 Compliance Safeguards</h2>
-              <p className="text-[11px] text-slate-500">Zero data retention, role-based access control, and end-to-end encryption</p>
+              <p className="text-xs text-slate-500">Zero data retention, role-based access control, and end-to-end encryption</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
               <span className="font-semibold text-slate-700">BAA Agreement</span>
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Active</span>
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Active</span>
             </div>
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
               <span className="font-semibold text-slate-700">TLS 1.3 In-Transit</span>
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Enforced</span>
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Enforced</span>
             </div>
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
               <span className="font-semibold text-slate-700">AES-256 Storage</span>
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Enforced</span>
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Enforced</span>
             </div>
           </div>
         </div>

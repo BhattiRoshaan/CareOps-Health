@@ -19,9 +19,15 @@ import { PaymentModal } from './PaymentModal';
 import { exportInvoicesToCSV } from '../../utils/exportUtils';
 
 export const BillingView: React.FC = () => {
-  const { invoices, payments, payInvoice, setupPaymentPlan, activePatient, openPatientQuickView, addToast } = useApp();
+  const { invoices, payments, payInvoice, setupPaymentPlan, activePatient, openPatientQuickView, addToast, searchQuery } = useApp();
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchQuery || '');
+
+  React.useEffect(() => {
+    if (searchQuery !== undefined) {
+      setSearch(searchQuery);
+    }
+  }, [searchQuery]);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showPayModal, setShowPayModal] = useState(false);
   const [showPlanModal, setShowPlanModal] = useState(false);
@@ -102,7 +108,7 @@ export const BillingView: React.FC = () => {
           <div className="text-2xl font-semibold text-slate-900 mt-1">
             {openInvoices.length}
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">
+          <div className="text-xs text-slate-500 mt-0.5">
             ${totalOutstanding.toFixed(2)} balance pending patient responsibility
           </div>
         </div>
@@ -112,7 +118,7 @@ export const BillingView: React.FC = () => {
           <div className="text-2xl font-semibold text-slate-900 mt-1">
             94.2%
           </div>
-          <div className="text-[11px] text-teal-800 mt-0.5">
+          <div className="text-xs text-teal-800 mt-0.5">
             Zero defaults on 4-month payment schedules
           </div>
         </div>
@@ -122,7 +128,7 @@ export const BillingView: React.FC = () => {
           <div className="text-2xl font-semibold text-slate-900 mt-1">
             {payments.length}
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">
+          <div className="text-xs text-slate-500 mt-0.5">
             PCI-DSS compliant merchant processing
           </div>
         </div>
@@ -150,8 +156,8 @@ export const BillingView: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-500 font-medium text-[11px]">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50/70 border-b border-slate-200 text-slate-500 font-semibold text-xs uppercase tracking-wider">
               <tr>
                 <th className="px-4 py-3">Invoice #</th>
                 <th className="px-4 py-3">Patient</th>
@@ -167,19 +173,19 @@ export const BillingView: React.FC = () => {
                 <tr key={inv.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="px-4 py-3.5 font-semibold font-mono text-slate-900">
                     {inv.id}
-                    <div className="text-[10px] text-slate-400 font-normal">Due: {inv.dueDate}</div>
+                    <div className="text-xs text-slate-400 font-normal">Due: {inv.dueDate}</div>
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="font-semibold text-slate-900">{inv.patientName}</div>
-                    <div className="text-[10px] text-slate-400 font-mono">{inv.patientId}</div>
+                    <div className="text-xs text-slate-400 font-mono">{inv.patientId}</div>
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="text-slate-800">{inv.serviceDescription}</div>
-                    <div className="text-[10px] text-slate-400">{inv.serviceDate}</div>
+                    <div className="text-xs text-slate-400">{inv.serviceDate}</div>
                   </td>
                   <td className="px-4 py-3.5 text-right">
                     <div className="font-medium text-slate-900">${inv.totalCharges.toFixed(2)}</div>
-                    <div className="text-[10px] text-slate-500">Paid: -${inv.insurancePaid.toFixed(2)}</div>
+                    <div className="text-xs text-slate-500">Paid: -${inv.insurancePaid.toFixed(2)}</div>
                   </td>
                   <td className="px-4 py-3.5 text-right">
                     <div className={`font-semibold ${inv.balanceDue > 0 ? 'text-slate-900' : 'text-emerald-700'}`}>
@@ -188,15 +194,15 @@ export const BillingView: React.FC = () => {
                   </td>
                   <td className="px-4 py-3.5">
                     {inv.balanceDue <= 0 ? (
-                      <span className="text-[11px] font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
+                      <span className="text-xs font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
                         Settled
                       </span>
                     ) : inv.paymentPlan ? (
-                      <span className="text-[11px] font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
+                      <span className="text-xs font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
                         Plan: ${inv.paymentPlan.monthlyAmount}/mo
                       </span>
                     ) : (
-                      <span className="text-[11px] font-medium text-amber-800 bg-amber-50 px-2 py-0.5 rounded">
+                      <span className="text-xs font-medium text-amber-800 bg-amber-50 px-2 py-0.5 rounded">
                         Due
                       </span>
                     )}
@@ -324,7 +330,7 @@ export const BillingView: React.FC = () => {
                     }`}
                   >
                     <div className="text-xs font-semibold">{m} Months</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
+                    <div className="text-xs text-slate-500 mt-0.5">
                       ${(selectedInvoice.balanceDue / m).toFixed(2)}/mo
                     </div>
                   </button>

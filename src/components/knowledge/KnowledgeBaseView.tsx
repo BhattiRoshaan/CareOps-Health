@@ -13,9 +13,15 @@ import {
 } from 'lucide-react';
 
 export const KnowledgeBaseView: React.FC = () => {
-  const { knowledgeArticles } = useApp();
+  const { knowledgeArticles, searchQuery } = useApp();
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchQuery || '');
+
+  React.useEffect(() => {
+    if (searchQuery !== undefined) {
+      setSearch(searchQuery);
+    }
+  }, [searchQuery]);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedArticle, setSelectedArticle] = useState<KnowledgeArticle | null>(knowledgeArticles[0]);
 
@@ -100,14 +106,14 @@ export const KnowledgeBaseView: React.FC = () => {
                     : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300'
                 }`}
               >
-                <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 mb-1">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-1">
                   <span>{article.category}</span>
                   <span>{article.id}</span>
                 </div>
                 <h3 className="text-xs font-bold text-slate-900 dark:text-white leading-snug">
                   {article.title}
                 </h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
                   {article.content}
                 </p>
                 <div className="flex flex-wrap gap-1 mt-2.5">
@@ -129,7 +135,7 @@ export const KnowledgeBaseView: React.FC = () => {
               <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300">
+                    <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300">
                       {selectedArticle.category}
                     </span>
                     <span className="text-xs text-slate-400 font-mono">{selectedArticle.id}</span>
@@ -143,7 +149,7 @@ export const KnowledgeBaseView: React.FC = () => {
                   </div>
                 </div>
 
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-2.5 py-1 rounded-full border border-emerald-200">
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-2.5 py-1 rounded-full border border-emerald-200">
                   <ShieldCheck className="w-3.5 h-3.5" /> Verified SOP
                 </span>
               </div>
@@ -157,7 +163,7 @@ export const KnowledgeBaseView: React.FC = () => {
                   <Sparkles className="w-4 h-4 text-teal-600" />
                   <span>AI Grounding Directive</span>
                 </div>
-                <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-slate-600 dark:text-slate-400">
                   When answering patient queries regarding {selectedArticle.category.toLowerCase()}, CareOps micro-agents must strictly adhere to the operational limits specified in this SOP.
                 </p>
               </div>

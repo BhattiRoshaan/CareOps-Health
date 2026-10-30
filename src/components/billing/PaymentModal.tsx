@@ -260,7 +260,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               {paymentMethod !== 'ACH Bank Transfer' ? (
                 <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/70 border border-slate-200">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1">
                       Cardholder Name
                     </label>
                     <input
@@ -273,7 +273,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1">
                       Card Number
                     </label>
                     <input
@@ -287,7 +287,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
                   <div className="grid grid-cols-3 gap-2">
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                      <label className="block text-xs font-bold text-slate-600 uppercase mb-1">
                         Expiry
                       </label>
                       <input
@@ -299,7 +299,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                      <label className="block text-xs font-bold text-slate-600 uppercase mb-1">
                         CVV
                       </label>
                       <input
@@ -311,7 +311,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                      <label className="block text-xs font-bold text-slate-600 uppercase mb-1">
                         ZIP
                       </label>
                       <input
@@ -327,7 +327,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               ) : (
                 <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/70 border border-slate-200">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1">
                       Routing Number (ABA)
                     </label>
                     <input
@@ -339,7 +339,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                    <label className="block text-xs font-bold text-slate-600 uppercase mb-1">
                       Checking Account Number
                     </label>
                     <input
